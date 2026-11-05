@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <EmbeddedResource Include="Presets\built-in-disc-presets.json"
+                      LogicalName="NawayasaCitramandala.Core.BuiltInDiscPresets.json" />
+    <EmbeddedResource Include="Calibration\Patterns\target_slim.png"
+                      LogicalName="NawayasaCitramandala.Core.Calibration.target_slim.png" />
+    <EmbeddedResource Include="Calibration\Patterns\target_slim.gray.gz"
+                      LogicalName="NawayasaCitramandala.Core.Calibration.target_slim.gray.gz" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,17 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>13.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <Deterministic>true</Deterministic>
+    <Company>Nawayasa Citramandala Project</Company>
+    <Product>Nawayasa Citramandala DiscImageStudio</Product>
+    <Copyright>Copyright © 2026 Nawayasa Citramandala Contributors</Copyright>
+    <VersionPrefix>2.0.0</VersionPrefix>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(IsTestProject)' != 'true'">
+    <InternalsVisibleTo Include="NawayasaCitramandala.Tests" />
+  </ItemGroup>
+</Project>
