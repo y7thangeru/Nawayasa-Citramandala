@@ -23,7 +23,7 @@ public static class L
     private static readonly CultureInfo StartupCulture = CultureInfo.CurrentUICulture;
     private static readonly IReadOnlyDictionary<string, Dictionary<string, string>> Catalog = LoadCatalog();
 
-    public static string CurrentLanguage { get; private set; } = Chinese;
+    public static string CurrentLanguage { get; private set; } = English;
 
     /// <summary>Raised after <see cref="SetLanguage"/> resolves to a different language. Views
     /// rebuilt from XAML bindings refresh themselves; cached text in view models listens too.</summary>
@@ -51,17 +51,9 @@ public static class L
     public static string ResolveLanguage(string? language, CultureInfo? systemCulture = null)
     {
         string normalized = NormalizeLanguage(language);
-        if (normalized != SystemLanguage) return normalized;
-
-        CultureInfo culture = systemCulture ?? StartupCulture;
-        if (culture.TwoLetterISOLanguageName == "ja") return Japanese;
-        if (culture.TwoLetterISOLanguageName == "tr") return Turkish;
-        if (culture.TwoLetterISOLanguageName == "es") return Spanish;
-        if (culture.TwoLetterISOLanguageName == "cs") return Czech;
-        if (culture.TwoLetterISOLanguageName != "zh") return English;
-        return IsTraditionalChinese(culture.Name) ? TraditionalChinese : Chinese;
+        if (normalized != SystemLanguage && !string.IsNullOrEmpty(normalized)) return normalized;
+        return English;
     }
-
     private static bool IsTraditionalChinese(string name) =>
         name.Equals("zh-TW", StringComparison.OrdinalIgnoreCase)
         || name.Equals("zh-HK", StringComparison.OrdinalIgnoreCase)
@@ -96,6 +88,8 @@ public static class L
         if (!Catalog.TryGetValue(key, out Dictionary<string, string>? translations)) return key;
         if (translations.TryGetValue(CurrentLanguage, out string? translated)
             && !string.IsNullOrWhiteSpace(translated)) return translated;
+        if (translations.TryGetValue(English, out string? englishFallback)
+            && !string.IsNullOrWhiteSpace(englishFallback)) return englishFallback;
         return translations.TryGetValue(Chinese, out string? fallback)
             && !string.IsNullOrWhiteSpace(fallback) ? fallback : key;
     }
@@ -116,7 +110,7 @@ public static class L
         Dictionary<string, Dictionary<string, string>> result = new(StringComparer.Ordinal);
         Assembly assembly = typeof(L).Assembly;
         foreach (string name in assembly.GetManifestResourceNames()
-                     .Where(name => name.StartsWith("NawayasaCitramandala.Localization.Catalogs.", StringComparison.Ordinal)
+                     .Where(name => name.Contains("Localization.Catalogs.", StringComparison.Ordinal)
                                     && name.EndsWith(".json", StringComparison.Ordinal))
                      .OrderBy(name => name, StringComparer.Ordinal))
         {

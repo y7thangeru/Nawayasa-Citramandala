@@ -113,3 +113,18 @@ Dokumen ini mencatat setiap perubahan, penambahan, refaktor, dan perbaikan dalam
 - **Reasoning**:
   - Memenuhi permintaan pengguna untuk menyediakan berkas `.exe` siap pakai yang dapat langsung dijalankan dengan klik ganda (*double-click*) di lingkungan Windows tanpa konfigurasi CLI.
   - Varian standalone mengemas seluruh runtime .NET 9 Desktop, modul pemrosesan citra, pustaka pembakaran IMAPI2, modul computer vision, dan aset antarmuka ke dalam satu file biner tunggal.
+
+### [2026-11-05 12:35:00 +07:00] - Perbaikan Lokalisasi Default ke Bahasa Inggris & Resource Loader Bugfix
+- **Action Type**: `[FIX]` / `[MODIFY]`
+- **File Paths**:
+  - `src/NawayasaCitramandala.App/Localization/L.cs` `[FIX]` (Perbaikan resource filtering string dari `StartsWith("NawayasaCitramandala.Localization...")` ke `Contains("Localization.Catalogs...")`, pengalihan bahasa default ke English `en`)
+  - `src/NawayasaCitramandala.App/Services/AppSettings.cs` `[MODIFY]` (Default language property diatur ke `L.English`)
+  - `src/NawayasaCitramandala.App/AppHost.cs` `[MODIFY]` (Default runtime bootstrap language diatur ke `L.English`)
+  - `src/NawayasaCitramandala.App/Services/AppSettingsStore.cs` `[FIX]` (Penyesuaian folder konfigurasi lokal dari `DiscImageStudio` ke `NawayasaCitramandala`)
+  - `tests/NawayasaCitramandala.Tests/AdvancedSpinoffFeaturesTests.cs` `[NEW]` (Penambahan unit test verifikasi lokalisasi bahasa Inggris)
+  - `tests/NawayasaCitramandala.Tests/NawayasaCitramandala.Tests.csproj` `[MODIFY]`
+  - `publish/win-x64-standalone/NawayasaCitramandala.exe` `[REBUILD]`
+  - `publish/win-x64-portable/NawayasaCitramandala.exe` `[REBUILD]`
+- **Reasoning**:
+  - Memperbaiki bug kritis di mana catalog JSON lokalisasi gagal dimuat karena perbedaan RootNamespace (`NawayasaCitramandala.App` vs `NawayasaCitramandala`), menyebabkan aplikasi menampilkan teks fallback Mandarin mentah.
+  - Mengubah bahasa antarmuka default menjadi **Bahasa Inggris (English)** sesuai permintaan pengguna, dengan catalog JSON 100% lengkap dan terverifikasi unit test (15/15 passed).

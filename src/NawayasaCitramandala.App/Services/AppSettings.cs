@@ -21,7 +21,7 @@ public sealed record AppSettings
     public AppTheme Theme { get; init; } = AppTheme.System;
 
     /// <summary>UI language: zh-CN, zh-TW, en, ja, tr, es, cs, or system. Unset preferences follow the system.</summary>
-    public string Language { get; init; } = L.SystemLanguage;
+    public string Language { get; init; } = L.English;
 
     /// <summary>Default folder for the new-project dialog; empty means the system Documents
     /// folder (see <see cref="Core.ProjectJsonStore.GetDefaultProjectsDirectory"/>).</summary>

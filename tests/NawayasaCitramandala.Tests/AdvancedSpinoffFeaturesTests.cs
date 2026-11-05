@@ -64,4 +64,20 @@ public class AdvancedSpinoffFeaturesTests
         Assert.Contains("spectralColor", html); // Iridescence shader function
         Assert.Contains("uTrackPitch", html);
     }
+
+    [Fact]
+    public void Localization_DefaultsToEnglish_AndLoadsCatalogs()
+    {
+        NawayasaCitramandala.Localization.L.Initialize(null);
+        Assert.Equal(NawayasaCitramandala.Localization.L.English, NawayasaCitramandala.Localization.L.CurrentLanguage);
+
+        string previewText = NawayasaCitramandala.Localization.L.T("Xaml.Preview");
+        Assert.Equal("Preview", previewText);
+
+        string toneText = NawayasaCitramandala.Localization.L.T("Xaml.Tone");
+        Assert.Equal("Tone", toneText);
+
+        string exportText = NawayasaCitramandala.Localization.L.T("Xaml.NextExport");
+        Assert.Equal("Next: Export", exportText);
+    }
 }

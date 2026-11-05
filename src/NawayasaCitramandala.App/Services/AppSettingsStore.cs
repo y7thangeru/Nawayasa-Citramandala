@@ -35,7 +35,7 @@ public sealed class AppSettingsStore
 
     public static string DefaultPath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "DiscImageStudio",
+        "NawayasaCitramandala",
         FileName);
 
     public string FilePath { get; }

@@ -22,5 +22,6 @@
     <ProjectReference Include="..\..\src\NawayasaCitramandala.BluRay\NawayasaCitramandala.BluRay.csproj" />
     <ProjectReference Include="..\..\src\NawayasaCitramandala.Vision\NawayasaCitramandala.Vision.csproj" />
     <ProjectReference Include="..\..\src\NawayasaCitramandala.Burning\NawayasaCitramandala.Burning.csproj" />
+    <ProjectReference Include="..\..\src\NawayasaCitramandala.App\NawayasaCitramandala.App.csproj" />
   </ItemGroup>
 </Project>

@@ -23,7 +23,7 @@ internal static class AppHost
     /// palette overlays Tokens when requested; Controls is added last so its references see
     /// the finished order Tokens -> Light (optional) -> Controls.</summary>
     internal static Application CreateApplication(ShutdownMode shutdownMode, AppTheme theme = AppTheme.System,
-        string language = L.SystemLanguage)
+        string language = L.English)
     {
         L.Initialize(language);
         Application application = new()
