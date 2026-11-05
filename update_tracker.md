@@ -104,4 +104,12 @@ Dokumen ini mencatat setiap perubahan, penambahan, refaktor, dan perbaikan dalam
   - Mengintegrasikan fitur unggulan spinoff langsung ke antarmuka pengguna:
     1. Tombol **"Auto-Calibrate with AI/Vision"** pada modul kalibrasi untuk deteksi kontur batas dan kelengkungan pitch secara otonom via computer vision tanpa klik manual.
     2. Tombol **"3D Iridescence (WebGL)"** pada layar Live Preview untuk meluncurkan simulator interaktif difraksi kisi optik Bragg berbasis Three.js di browser default.
-  - Seluruh modul berhasil dikompilasi dengan 0 peringatan dan 0 kesalahan, dan seluruh test suite 14 unit tests tetap lulus 100%.
+### [2026-11-05 12:22:00 +07:00] - Pembuatan Executable Mandiri (Standalone & Portable .EXE)
+- **Action Type**: `[NEW]` / `[MODIFY]`
+- **File Paths**:
+  - `publish/win-x64-standalone/NawayasaCitramandala.exe` `[NEW]` (Single-file self-contained Windows executable, ~162 MB, zero runtime dependencies)
+  - `publish/win-x64-portable/NawayasaCitramandala.exe` `[NEW]` (Framework-dependent portable launcher executable)
+  - `.gitignore` `[MODIFY]` (Mengecualikan folder biner `publish/`)
+- **Reasoning**:
+  - Memenuhi permintaan pengguna untuk menyediakan berkas `.exe` siap pakai yang dapat langsung dijalankan dengan klik ganda (*double-click*) di lingkungan Windows tanpa konfigurasi CLI.
+  - Varian standalone mengemas seluruh runtime .NET 9 Desktop, modul pemrosesan citra, pustaka pembakaran IMAPI2, modul computer vision, dan aset antarmuka ke dalam satu file biner tunggal.
