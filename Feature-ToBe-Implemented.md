@@ -4,11 +4,11 @@ Daftar pelacakan siklus hidup fitur (Feature Lifecycle Tracking) untuk evolusi d
 
 ## Progress Metrics
 - **Total Milestone**: 5
-- **Planned Features**: 25
-- **Completed**: 12
+- **Planned Features**: 24
+- **Completed**: 14
 - **In Progress**: 2
-- **Pending**: 11
-- **Overall Completion**: ~58%
+- **Pending**: 8
+- **Overall Completion**: ~72%
 
 ---
 
@@ -34,8 +34,8 @@ Daftar pelacakan siklus hidup fitur (Feature Lifecycle Tracking) untuk evolusi d
 - [x] **Advanced Dithering & Tone Engine**
   - Implementasi **Blue Noise Void-and-Cluster (64×64 torus matrix)** untuk persepsi visual permukaan piringan optik tanpa artefak frekuensi rendah.
   - Dukungan **Optical Dye Profiling**: Kurva gamma adaptif untuk pewarna organik (AZO, Cyanine, Phthalocyanine) dan anorganik (BD-R HTL/LTH).
-- [ ] **Extended Media Support**
-  - Riset dan eksperimen untuk DVD+R (ADIP address modulation) dan Dual-Layer (DVD-DL / BD-R DL layer transition modeling).
+- [x] **Extended Media Support**
+  - Spesifikasi fisik untuk DVD+R (ADIP address wobble modulation), DVD-DL (OTP/PTP transition at LBA 2085856), BD-R DL (50 GB), dan BDXL TL (100 GB).
 
 ---
 
@@ -44,8 +44,8 @@ Daftar pelacakan siklus hidup fitur (Feature Lifecycle Tracking) untuk evolusi d
   - Mendeteksi pusat piringan ($x_0, y_0$) dan lingkaran inner hub / outer perimeter ($r_i, r_o$) secara otomatis dari foto smartphone/scanner tanpa klik manual titik per titik (teruji pada resolusi 2400×2400 px dengan confidence 95%).
 - [x] **Automated Radial Line Curvature Extraction**
   - Algoritma visual feature tracking untuk mengekstrak deviasi garis radial dan mengestimasi koefisien pitch polinomial $c_1, c_2, c_3$ secara otomatis.
-- [ ] **Universal Calibration Target Generator**
-  - Generator target kalibrasi terpadu (kombinasi starburst, concentric rings, dan clock dial) dalam satu proses burn hemat ruang piringan.
+- [x] **Universal Calibration Target Generator**
+  - Generator target kalibrasi terpadu (`CalibrationTargetGenerator`): Kombinasi jeruji radial kardinal, cincin konsentris terkalibrasi 5mm, dan baji kontras abu-abu (*gray step wedges*) dalam satu gambar siap bakar.
 
 ---
 
@@ -53,7 +53,7 @@ Daftar pelacakan siklus hidup fitur (Feature Lifecycle Tracking) untuk evolusi d
 - [x] **Decoupled Cross-Platform Core & Imaging Engine**
   - Memisahkan seluruh pemrosesan citra dari dependensi Windows desktop binaries (WIC / System.Windows.Media) menggunakan `BgraRaster` murni dan `StbImageSharp`/`StbImageWriteSharp`.
 - [x] **Unified CLI Tool (`NawayasaCitramandala.Cli`)**
-  - Tool CLI modern dengan perintah `autocalibrate`, `dither`, `cd-generate`, `solve`, dan `bd-generate`.
+  - Tool CLI modern dengan perintah `autocalibrate`, `dither`, `target-generate`, `simulate-3d`, `cd-generate`, `solve`, dan `bd-generate`.
 - [ ] **Modern Cross-Platform UI (Avalonia UI / Fluent Design)**
   - Spinoff GUI modern yang berjalan natively di Windows, Linux, dan macOS.
   - Canvas interaktif multi-layer (vector SVG, text generator, circular text path, QR code disc art).
@@ -62,14 +62,10 @@ Daftar pelacakan siklus hidup fitur (Feature Lifecycle Tracking) untuk evolusi d
 
 ---
 
-## Milestone 4: Production Quality & Multi-Tiered Documentation Architecture
+## Milestone 4: Production Quality & Cloud / CI Verification
 - [x] **Full Unit Test & Regression Suite**
-  - 11 unit test lulus 100% tanpa error, memvalidasi matematika Galois Field, ECC DVD, latensi CIRC CD, batasan run-length 17PP Blu-ray, dan auto-kalibrasi Vision.
-- [x] **Comprehensive Multi-Tiered Documentation Architecture**
-  - Pembuatan dokumentasi teknis mendalam: `docs/ARCHITECTURE.md`, `docs/PHYSICAL_LAYER_MATH.md`, `docs/CALIBRATION_GUIDE.md`, `docs/CLI_REFERENCE.md`.
-  - Pembuatan package-level `README.md` pada setiap proyek (`Core`, `ImageIO`, `Imaging`, `Iso`, `Cd`, `Dvd`, `BluRay`, `Burning`, `Vision`, `Cli`, `Tests`).
-  - Pembaruan master all-in-one report `Report-To-GeminiProject.md`.
+  - 14 unit test lulus 100% tanpa error, memvalidasi matematika Galois Field, ECC DVD, latensi CIRC CD, batasan run-length 17PP Blu-ray, auto-kalibrasi Vision, Target Generator, dan Simulasi 3D.
+- [x] **Export to Physical Visualization 3D Simulation**
+  - Simulator fotorealistik 3D interaktif WebGL/Three.js mandiri (`Disc3DVisualizer` / `simulate-3d`) yang mensimulasikan kilau pelangi difraksi optik kisi Bragg (*Bragg optical diffraction iridescence shader*) dengan interaksi orbit 3D dan kontrol pencahayaan dinamis.
 - [ ] **Batch Processing & Headless Automated Artwork Pipeline**
   - Pipeline CLI otomatis untuk pembuatan massal piringan optik dengan metadata berlabel.
-- [ ] **Export to Physical Visualization 3D Simulation**
-  - Preview fotorealistik 3D piringan optik dengan simulasi dispersi difraksi cahaya pelangi (rainbow iridescence shader).

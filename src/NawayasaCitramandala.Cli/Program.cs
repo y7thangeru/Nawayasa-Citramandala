@@ -40,6 +40,16 @@ public static class Program
             return RunDither(args.Skip(1).ToArray());
         }
 
+        if (cmd == "target-generate")
+        {
+            return RunTargetGenerate(args.Skip(1).ToArray());
+        }
+
+        if (cmd == "simulate-3d")
+        {
+            return RunSimulate3D(args.Skip(1).ToArray());
+        }
+
         try
         {
             DiscJobRequest request = new(args[0], args.Skip(1));
@@ -112,6 +122,8 @@ public static class Program
         Console.ResetColor();
         Console.WriteLine("  autocalibrate            Analyze disc photograph with Computer Vision to find center and pitch curve.");
         Console.WriteLine("  dither                   Apply advanced Blue Noise or Error Diffusion dithering with dye profiling.");
+        Console.WriteLine("  target-generate          Synthesize an all-in-one universal calibration disc artwork.");
+        Console.WriteLine("  simulate-3d              Generate an interactive 3D WebGL simulator with Bragg optical diffraction iridescence.");
         Console.WriteLine();
     }
 
@@ -209,6 +221,79 @@ public static class Program
         BgraRaster result = ImageDitherProcessor.Process(src, algo, 1.0, dye);
         RasterCodec.SavePng(outputPath, result.Width, result.Height, result.Pixels, grayscale: false);
         Console.WriteLine($"Dithered output saved: {outputPath}");
+        return 0;
+    }
+
+    private static int RunTargetGenerate(string[] args)
+    {
+        string outputPath = args.Length > 0 ? args[0] : "calibration_target.png";
+        int res = 2400;
+        int spokes = 24;
+
+        for (int i = 1; i < args.Length; i++)
+        {
+            if (args[i] == "--resolution" && i + 1 < args.Length) res = int.Parse(args[++i]);
+            else if (args[i] == "--spokes" && i + 1 < args.Length) spokes = int.Parse(args[++i]);
+        }
+
+        Console.WriteLine($"Synthesizing Universal Calibration Target: {res}x{res} px, {spokes} spokes...");
+        var options = new CalibrationTargetOptions(Resolution: res, RadialSpokesCount: spokes);
+        var targetRaster = CalibrationTargetGenerator.Generate(options);
+        RasterCodec.SavePng(outputPath, targetRaster.Width, targetRaster.Height, targetRaster.Pixels, grayscale: false);
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine($"Calibration target artwork created successfully: {outputPath}");
+        Console.ResetColor();
+        return 0;
+    }
+
+    private static int RunSimulate3D(string[] args)
+    {
+        if (args.Length < 2)
+        {
+            Console.WriteLine("Usage: simulate-3d <disc-image.png> <output.html> [--type cd|dvd|bluray] [--title 'My Disc Art']");
+            return 1;
+        }
+
+        string imagePath = args[0];
+        string htmlPath = args[1];
+        OpticalTrackStandard media = OpticalTrackStandard.DvdMinusR;
+        string title = "Nawayasa Citramandala Disc Art";
+
+        for (int i = 2; i < args.Length; i++)
+        {
+            if (args[i] == "--type" && i + 1 < args.Length)
+            {
+                string t = args[++i].ToLowerInvariant();
+                media = t switch
+                {
+                    "cd" => OpticalTrackStandard.CdRedBook,
+                    "bluray" or "bd" => OpticalTrackStandard.BluRayBdrSingleLayer,
+                    _ => OpticalTrackStandard.DvdMinusR
+                };
+            }
+            else if (args[i] == "--title" && i + 1 < args.Length)
+            {
+                title = args[++i];
+            }
+        }
+
+        if (!File.Exists(imagePath))
+        {
+            Console.Error.WriteLine($"Error: Input disc image not found: {imagePath}");
+            return 1;
+        }
+
+        Console.WriteLine($"Building 3D physical iridescence simulation for: {imagePath}");
+        byte[] imageBytes = File.ReadAllBytes(imagePath);
+        string base64 = Convert.ToBase64String(imageBytes);
+
+        string html = Disc3DVisualizer.GenerateHtmlViewer(title, base64, media);
+        File.WriteAllText(htmlPath, html, System.Text.Encoding.UTF8);
+
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine($"Interactive 3D Simulation generated: {htmlPath}");
+        Console.WriteLine("Open this HTML file in any modern web browser to view the disc rotating under dynamic light with Bragg diffraction rainbow sheen!");
+        Console.ResetColor();
         return 0;
     }
 

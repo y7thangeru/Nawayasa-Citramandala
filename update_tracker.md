@@ -67,3 +67,17 @@ Dokumen ini mencatat setiap perubahan, penambahan, refaktor, dan perbaikan dalam
   - Setiap modul dan paket di bawah `src/` dan `tests/` memiliki `README.md` spesifik yang mendokumentasikan API, invariant fisik, dependensi, dan contoh penggunaan.
   - Folder `docs/` diperluas dengan panduan mendalam: arsitektur sistem, turunan matematika lapisan fisik (spiral Archimedes, EFM/EFMPlus, 17PP, CIRC 111-frame delay), panduan kalibrasi computer vision, dan referensi CLI terpadu.
   - Mengompilasi seluruh dokumen ke dalam laporan master all-in-one `Report-To-GeminiProject.md` untuk sinkronisasi VCS ke repositori remote `https://github.com/y7thangeru/Nawayasa-Citramandala`.
+
+### [2026-11-05 11:16:00 +07:00] - Penambahan Extended Media Specs, Calibration Target Generator & Simulasi Difraksi 3D
+- **Action Type**: `[NEW]`
+- **File Paths**:
+  - `src/NawayasaCitramandala.Core/MediaFormatSpecification.cs`
+  - `src/NawayasaCitramandala.Imaging/CalibrationTargetGenerator.cs`
+  - `src/NawayasaCitramandala.Imaging/Disc3DVisualizer.cs`
+  - `src/NawayasaCitramandala.Cli/Program.cs` (`target-generate` & `simulate-3d`)
+  - `tests/NawayasaCitramandala.Tests/AdvancedSpinoffFeaturesTests.cs`
+- **Reasoning**:
+  - Memperluas pemodelan format piringan optik: DVD+R (ADIP wobble phase modulation), DVD-DL (OTP/PTP layer transition), BD-R DL (50 GB), dan BD-R XL TL (100 GB).
+  - Menyediakan generator pola uji kalibrasi otonom terpadu (Universal Calibration Target Generator) berisi jeruji radial, cincin konsentris terkalibrasi 5mm, dan baji kontras abu-abu (*gray step wedges*).
+  - Mengimplementasikan simulator fotorealistik WebGL/Three.js interaktif dengan fragment shader khusus yang mensimulasikan kilau pelangi difraksi optik Bragg (*Bragg optical diffraction grating iridescence*).
+  - Memperluas cakupan test suite menjadi 14 unit tests (100% passed).
