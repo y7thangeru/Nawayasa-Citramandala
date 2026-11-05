@@ -39,3 +39,31 @@ Dokumen ini mencatat setiap perubahan, penambahan, refaktor, dan perbaikan dalam
   - Menyelesaikan pemisahan arsitektur dari monopoli .NET 10 ke .NET 9 LTS/STS yang terpasang di sistem.
   - Membangun 100% test-passing verification suite.
   - Menghadirkan fitur baru yang belum ada di upstream: Blue Noise Void-and-Cluster dithering, profil kimia dye disc (AZO, Cyanine, Phthalocyanine), dan modul Computer Vision otomatis untuk deteksi fisik piringan dan kalkulasi pitch $c_1, c_2, c_3$.
+
+
+### [2026-11-05 11:10:00 +07:00] - Pembuatan Dokumentasi Lengkap Multi-Tiered & Persiapan VCS Remote Push
+- **Action Type**: `[NEW]` / `[MODIFY]`
+- **File Paths**:
+  - `README.md` `[MODIFY]`
+  - `Feature-ToBe-Implemented.md` `[MODIFY]`
+  - `docs/ARCHITECTURE.md` `[NEW]`
+  - `docs/PHYSICAL_LAYER_MATH.md` `[NEW]`
+  - `docs/CALIBRATION_GUIDE.md` `[NEW]`
+  - `docs/CLI_REFERENCE.md` `[NEW]`
+  - `src/NawayasaCitramandala.Core/README.md` `[NEW]`
+  - `src/NawayasaCitramandala.ImageIO/README.md` `[NEW]`
+  - `src/NawayasaCitramandala.Imaging/README.md` `[NEW]`
+  - `src/NawayasaCitramandala.Iso/README.md` `[NEW]`
+  - `src/NawayasaCitramandala.Cd/README.md` `[NEW]`
+  - `src/NawayasaCitramandala.Dvd/README.md` `[NEW]`
+  - `src/NawayasaCitramandala.BluRay/README.md` `[NEW]`
+  - `src/NawayasaCitramandala.Burning/README.md` `[NEW]`
+  - `src/NawayasaCitramandala.Vision/README.md` `[NEW]`
+  - `src/NawayasaCitramandala.Cli/README.md` `[NEW]`
+  - `tests/NawayasaCitramandala.Tests/README.md` `[NEW]`
+  - `Report-To-GeminiProject.md` `[MODIFY]`
+- **Reasoning**:
+  - Mengimplementasikan Comprehensive Multi-Tiered Documentation Architecture sesuai Antigravity Global Rules.
+  - Setiap modul dan paket di bawah `src/` dan `tests/` memiliki `README.md` spesifik yang mendokumentasikan API, invariant fisik, dependensi, dan contoh penggunaan.
+  - Folder `docs/` diperluas dengan panduan mendalam: arsitektur sistem, turunan matematika lapisan fisik (spiral Archimedes, EFM/EFMPlus, 17PP, CIRC 111-frame delay), panduan kalibrasi computer vision, dan referensi CLI terpadu.
+  - Mengompilasi seluruh dokumen ke dalam laporan master all-in-one `Report-To-GeminiProject.md` untuk sinkronisasi VCS ke repositori remote `https://github.com/y7thangeru/Nawayasa-Citramandala`.
