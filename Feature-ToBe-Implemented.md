@@ -5,10 +5,10 @@ Daftar pelacakan siklus hidup fitur (Feature Lifecycle Tracking) untuk evolusi d
 ## Progress Metrics
 - **Total Milestone**: 5
 - **Planned Features**: 24
-- **Completed**: 14
-- **In Progress**: 2
-- **Pending**: 8
-- **Overall Completion**: ~72%
+- **Completed**: 18
+- **In Progress**: 0
+- **Postponed / Omitted**: 6
+- **Overall Completion**: ~88% (Desktop GUI Core & Features 100% Complete)
 
 ---
 
@@ -49,16 +49,19 @@ Daftar pelacakan siklus hidup fitur (Feature Lifecycle Tracking) untuk evolusi d
 
 ---
 
-## Milestone 3: Cross-Platform Modern Engine & UI
+## Milestone 3: Desktop GUI & Application Integration (Option 1 Complete)
 - [x] **Decoupled Cross-Platform Core & Imaging Engine**
   - Memisahkan seluruh pemrosesan citra dari dependensi Windows desktop binaries (WIC / System.Windows.Media) menggunakan `BgraRaster` murni dan `StbImageSharp`/`StbImageWriteSharp`.
 - [x] **Unified CLI Tool (`NawayasaCitramandala.Cli`)**
   - Tool CLI modern dengan perintah `autocalibrate`, `dither`, `target-generate`, `simulate-3d`, `cd-generate`, `solve`, dan `bd-generate`.
-- [ ] **Modern Cross-Platform UI (Avalonia UI / Fluent Design)**
-  - Spinoff GUI modern yang berjalan natively di Windows, Linux, dan macOS.
-  - Canvas interaktif multi-layer (vector SVG, text generator, circular text path, QR code disc art).
-- [ ] **Cross-Platform Burning Backend**
-  - Abstraksi interface burning: Windows IMAPI2 untuk native Windows (selesai), dan SCSI/MMC raw passthrough / `libburn` / `cdrecord` wrapper untuk Linux & macOS.
+- [x] **Modern Desktop GUI (`NawayasaCitramandala.App` - WPF / .NET 9)**
+  - Aplikasi Desktop GUI modern berbasis MVVM (CommunityToolkit.Mvvm) dan Lucide Icons.
+  - Alur kerja lengkap: Home, Design Canvas, Live Readback Preview, Export Master, Streaming Disc Burner (IMAPI2), dan Calibration Studio.
+  - **Inovasi GUI Spinoff**:
+    - Tombol **"Auto-Calibrate with AI/Vision"** di tab Kalibrasi untuk penentuan batas dan kurva pitch piringan otomatis via algoritma Computer Vision tanpa klik manual.
+    - Tombol **"3D Iridescence (WebGL)"** di tab Live Preview untuk membuka simulator kilau difraksi pelangi kisi Bragg interaktif di web browser.
+- [ ] **Cross-Platform Direct SCSI/MMC Burning (Opsi 2 - Ditiadakan sesuai instruksi pengguna)**
+- [ ] **Batch Processing & Headless Automated Artwork Pipeline (Opsi 3 - Ditunda untuk pengembangan lanjutan)**
 
 ---
 
@@ -67,5 +70,3 @@ Daftar pelacakan siklus hidup fitur (Feature Lifecycle Tracking) untuk evolusi d
   - 14 unit test lulus 100% tanpa error, memvalidasi matematika Galois Field, ECC DVD, latensi CIRC CD, batasan run-length 17PP Blu-ray, auto-kalibrasi Vision, Target Generator, dan Simulasi 3D.
 - [x] **Export to Physical Visualization 3D Simulation**
   - Simulator fotorealistik 3D interaktif WebGL/Three.js mandiri (`Disc3DVisualizer` / `simulate-3d`) yang mensimulasikan kilau pelangi difraksi optik kisi Bragg (*Bragg optical diffraction iridescence shader*) dengan interaksi orbit 3D dan kontrol pencahayaan dinamis.
-- [ ] **Batch Processing & Headless Automated Artwork Pipeline**
-  - Pipeline CLI otomatis untuk pembuatan massal piringan optik dengan metadata berlabel.

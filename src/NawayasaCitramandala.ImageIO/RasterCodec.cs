@@ -18,6 +18,12 @@ public static class RasterCodec
         return Decode(stream, maxPixels);
     }
 
+    public static BgraRaster LoadBgra32FromBytes(byte[] bytes, long maxPixels = int.MaxValue / 4)
+    {
+        using MemoryStream stream = new(bytes);
+        return Decode(stream, maxPixels);
+    }
+
     public static void ValidateSource(string path, long maxFileBytes, long maxPixels)
     {
         using FileStream stream = File.OpenRead(Path.GetFullPath(path));

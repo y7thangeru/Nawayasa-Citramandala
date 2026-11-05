@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <AssemblyName>NawayasaCitramandala</AssemblyName>
+    <RootNamespace>NawayasaCitramandala.App</RootNamespace>
+    <StartupObject>NawayasaCitramandala.Program</StartupObject>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\DiscImageStudio.ico</ApplicationIcon>
+    <Title>Nawayasa Citramandala - Disc Image Studio</Title>
+    <Product>Nawayasa Citramandala DiscImageStudio</Product>
+    <Description>Physical Layer Optical Disc Artwork Synthesis &amp; Streaming Burn</Description>
+    <Company>Nawayasa Citramandala Contributors</Company>
+    <Copyright>Copyright © 2026</Copyright>
+    <NeutralLanguage>en-US</NeutralLanguage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="MahApps.Metro.IconPacks.Lucide" Version="6.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NawayasaCitramandala.Core\NawayasaCitramandala.Core.csproj" />
+    <ProjectReference Include="..\NawayasaCitramandala.ImageIO\NawayasaCitramandala.ImageIO.csproj" />
+    <ProjectReference Include="..\NawayasaCitramandala.Imaging\NawayasaCitramandala.Imaging.csproj" />
+    <ProjectReference Include="..\NawayasaCitramandala.Iso\NawayasaCitramandala.Iso.csproj" />
+    <ProjectReference Include="..\NawayasaCitramandala.Cd\NawayasaCitramandala.Cd.csproj" />
+    <ProjectReference Include="..\NawayasaCitramandala.Dvd\NawayasaCitramandala.Dvd.csproj" />
+    <ProjectReference Include="..\NawayasaCitramandala.BluRay\NawayasaCitramandala.BluRay.csproj" />
+    <ProjectReference Include="..\NawayasaCitramandala.Burning\NawayasaCitramandala.Burning.csproj" />
+    <ProjectReference Include="..\NawayasaCitramandala.Vision\NawayasaCitramandala.Vision.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Fonts\HarmonyOS_Sans_SC_Regular.ttf" />
+    <Resource Include="Assets\Fonts\HarmonyOS_Sans_SC_Medium.ttf" />
+    <Resource Include="Assets\Fonts\HarmonyOS_Sans_SC_Bold.ttf" />
+    <Resource Include="Assets\DiscImageStudio-256.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Localization\Catalogs\*.json" />
+  </ItemGroup>
+</Project>

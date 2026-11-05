@@ -13,4 +13,10 @@ public static class RingImageQuality
 
     /// <summary>Production master export quality for streaming burn (8192 x 8192).</summary>
     public const int MasterResolution = 8192;
+
+    /// <summary>Alias for MasterResolution for upstream compatibility.</summary>
+    public const int GenerationSize = MasterResolution;
+
+    /// <summary>Alias for PreviewResolution for upstream compatibility.</summary>
+    public const int PreviewSize = PreviewResolution;
 }
