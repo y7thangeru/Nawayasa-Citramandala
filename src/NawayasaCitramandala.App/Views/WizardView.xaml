@@ -130,7 +130,7 @@
                                             </StackPanel>
                                             <TextBlock Text="Standard 80 min (700 MB)" Style="{StaticResource BodyText}" />
                                             <TextBlock Text="Printable area: 24.5 – 56.8 mm" Style="{StaticResource CompactHint}" Margin="0,4,0,0" />
-                                            <Border Background="{DynamicResource PrimarySubtleBrush}" CornerRadius="4" Padding="6,2" Margin="0,8,0,0" HorizontalAlignment="Left">
+                                            <Border Background="#267C4DFF" CornerRadius="4" Padding="6,2" Margin="0,8,0,0" HorizontalAlignment="Left">
                                                 <TextBlock Text="Supports Audio CD + Visual Hybrid" Style="{StaticResource MicroText}" Foreground="{DynamicResource PrimaryBrush}" FontWeight="SemiBold" />
                                             </Border>
                                         </StackPanel>
@@ -344,7 +344,7 @@
                                 </StackPanel>
 
                                 <!-- Capacity Warning Alert if over 80 min -->
-                                <Border Background="{DynamicResource DangerSubtleBrush}" BorderBrush="{DynamicResource DangerBrush}"
+                                <Border Background="#26E53935" BorderBrush="{DynamicResource DangerBrush}"
                                         BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,14,0,0"
                                         Visibility="{Binding IsAudioCapacityExceeded, Converter={StaticResource BoolToVis}}">
                                     <StackPanel Orientation="Horizontal">
@@ -637,22 +637,22 @@
 
                         <DockPanel LastChildFill="False">
                             <Button DockPanel.Dock="Left" Style="{StaticResource DangerButton}" Content="🔥 Start Hardware Burn"
-                                    Height="{StaticResource ControlHeightLarge}" Padding="28,0"
+                                    Height="42" Padding="28,0"
                                     Command="{Binding StartBurnCommand}" />
                             <Button DockPanel.Dock="Left" Style="{StaticResource SecondaryButton}" Content="Cancel Burn"
-                                    Height="{StaticResource ControlHeightLarge}" Padding="20,0" Margin="12,0,0,0"
+                                    Height="42" Padding="20,0" Margin="12,0,0,0"
                                     Command="{Binding CancelBurnCommand}"
                                     IsEnabled="{Binding IsBurning}" />
                             <!-- Export Master WAV + CUE Option -->
                             <Button DockPanel.Dock="Right" Style="{StaticResource SecondaryButton}"
-                                    Content="📦 Export Master WAV + CUE Sheet" Height="{StaticResource ControlHeightLarge}" Padding="20,0"
+                                    Content="📦 Export Master WAV + CUE Sheet" Height="42" Padding="20,0"
                                     Command="{Binding GenerateHybridMasterCommand}"
                                     Visibility="{Binding HasAudioTracks, Converter={StaticResource BoolToVis}}" />
                         </DockPanel>
 
                         <!-- Progress Bar & Status -->
                         <StackPanel Margin="0,16,0,0" Visibility="{Binding IsBurning, Converter={StaticResource BoolToVis}}">
-                            <ProgressBar Height="8" Minimum="0" Maximum="100" Value="{Binding BurnProgress}"
+                            <ProgressBar Height="8" Minimum="0" Maximum="100" Value="{Binding BurnProgress, Mode=OneWay}"
                                          Foreground="{DynamicResource PrimaryBrush}" Margin="0,0,0,8" />
                             <TextBlock Text="{Binding BurnStatusText}" Style="{StaticResource HintText}" />
                         </StackPanel>

@@ -161,7 +161,11 @@ public partial class WizardViewModel : ObservableObject
     }
 
     public bool IsBurning => _burn.IsBurnRunning;
-    public double BurnProgress => _burn.BurnProgressValue;
+    public double BurnProgress
+    {
+        get => _burn.BurnProgressValue;
+        set => _burn.BurnProgressValue = value;
+    }
     public string BurnStatusText => _burn.BurnStatusText;
     public string DeviceStatusText => _burn.DeviceStatusText;
     public string SpeedStatusText => _burn.SpeedStatusText;
@@ -215,7 +219,11 @@ public partial class WizardViewModel : ObservableObject
 
         NextStepCommand = new RelayCommand(ExecuteNextStep, CanExecuteNextStep);
         PrevStepCommand = new RelayCommand(ExecutePrevStep, CanExecutePrevStep);
-        GoToStepCommand = new RelayCommand<int>(step => SetStep((WizardStep)step));
+        GoToStepCommand = new RelayCommand<object>(param =>
+        {
+            if (param is int i) SetStep((WizardStep)i);
+            else if (param is string s && int.TryParse(s, out int parsed)) SetStep((WizardStep)parsed);
+        });
         FitToDiscCommand = new RelayCommand(FitImageToDisc);
         CenterImageCommand = new RelayCommand(() => { TranslateXMm = 0; TranslateYMm = 0; SyncLayoutToLayer(); });
         ResetRotationCommand = new RelayCommand(() => { RotationDeg = 0; SyncLayoutToLayer(); });

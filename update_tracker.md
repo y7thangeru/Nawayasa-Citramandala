@@ -223,3 +223,19 @@ Dokumen ini mencatat setiap perubahan, penambahan, refaktor, dan perbaikan dalam
   - Memverifikasi ulang bahwa seluruh icon di semua file `.xaml` 100% valid tanpa satupun error enum.
   - Mengompilasi dan menguji jalannya executable mandiri secara langsung (`STANDALONE EXE IS RUNNING FLAWLESSLY! PID: 46616`).
   - Menyalin executable mandiri siap klik langsung ke folder root proyek `NawayasaCitramandala.exe` (172 MB).
+
+
+### [2026-11-06 10:33:00 +07:00] - Perbaikan Fatal Binding Mode BurnProgress, StaticResource Missing Keys & GoToStep Command Argument
+- **Action Type**: `[FIX]` / `[REFACTOR]`
+- **File Paths**:
+  - `src/NawayasaCitramandala.App/ViewModels/WizardViewModel.cs` `[FIX]`
+  - `src/NawayasaCitramandala.App/Views/WizardView.xaml` `[FIX]`
+  - `publish/win-x64-standalone/NawayasaCitramandala.exe` `[REFACTOR]`
+  - `NawayasaCitramandala.exe` `[REFACTOR]`
+  - `update_tracker.md` `[MODIFY]`
+- **Reasoning**:
+  - Berdasarkan pembacaan Windows Application Event Viewer secara real-time, ditemukan 2 error berturut-turut pada startup WPF:
+    1. `XamlParseException: Cannot find resource named 'ControlHeightLarge'`: Diperbaiki dengan mengganti resource yang hilang (`PrimarySubtleBrush`, `DangerSubtleBrush`, `ControlHeightLarge`) ke nilai konkret hex/double valid.
+    2. `ArgumentException: Parameter cannot be of type System.String as command requires System.Int32`: Pada tombol navigasi tab wizard (Step 1 s.d. 4), XAML mengirimkan `string` `"1"`. Diperbaiki dengan mengizinkan `RelayCommand<object>` dengan parsing aman `int.TryParse`.
+    3. `InvalidOperationException: TwoWay binding cannot work on read-only property 'BurnProgress'`: Diperbaiki dengan menambahkan setter dan mendeklarasikan `Mode=OneWay` pada `ProgressBar.Value`.
+  - Berhasil meluncurkan GUI aplikasi langsung ke sesi Desktop Windows pengguna via Windows Explorer (`PID: 32868`, `MainWindowTitle: Disc Image Studio`, `Responding: True`).
