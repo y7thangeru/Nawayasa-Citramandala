@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using NawayasaCitramandala.Burning;
 using NawayasaCitramandala.Cd;
 using NawayasaCitramandala.Core;
+using NawayasaCitramandala.ImageIO;
 using NawayasaCitramandala.Imaging;
 using NawayasaCitramandala.Localization;
 using NawayasaCitramandala.Services;
@@ -27,6 +28,8 @@ public partial class WizardViewModel : ObservableObject
     private readonly DiscParametersState _state;
     private readonly DesignViewModel _design;
     private readonly BurnViewModel _burn;
+
+    private BgraRaster? _rawSourceRaster;
 
     [ObservableProperty]
     private WizardStep _currentStep = WizardStep.LoadImage;
@@ -129,7 +132,7 @@ public partial class WizardViewModel : ObservableObject
     [ObservableProperty]
     private string _selectedDither = "BlueNoise";
 
-    public IReadOnlyList<string> DitherOptions { get; } = ["BlueNoise", "FloydSteinberg", "Threshold"];
+    public IReadOnlyList<string> DitherOptions { get; } = ["BlueNoise", "FloydSteinberg", "Bayer", "Threshold"];
 
     [ObservableProperty]
     private double _brightness = 0.0;
@@ -166,7 +169,10 @@ public partial class WizardViewModel : ObservableObject
         get => _burn.BurnProgressValue;
         set => _burn.BurnProgressValue = value;
     }
-    public string BurnStatusText => _burn.BurnStatusText;
+    public string BurnProgressPercentText => $"{BurnProgress:F0}%";
+    public string BurnStatusText => string.IsNullOrWhiteSpace(_burn.BurnStatusText)
+        ? (IsBurning ? "Writing data and artwork stream to optical recorder..." : "Ready to burn")
+        : _burn.BurnStatusText;
     public string DeviceStatusText => _burn.DeviceStatusText;
     public string SpeedStatusText => _burn.SpeedStatusText;
 
@@ -181,6 +187,7 @@ public partial class WizardViewModel : ObservableObject
     private bool _isSaved;
 
     // ---- Commands ----
+    public IRelayCommand<OpticalDiscFamily> SelectFormatCommand { get; }
     public IRelayCommand LoadImageCommand { get; }
     public IRelayCommand AddAudioFilesCommand { get; }
     public IRelayCommand<CdAudioTrack> RemoveAudioTrackCommand { get; }
@@ -210,6 +217,7 @@ public partial class WizardViewModel : ObservableObject
         _design = design;
         _burn = burn;
 
+        SelectFormatCommand = new RelayCommand<OpticalDiscFamily>(f => SelectedFormat = f);
         LoadImageCommand = new RelayCommand(BrowseAndLoadImage);
         AddAudioFilesCommand = new RelayCommand(BrowseAndAddAudioFiles);
         RemoveAudioTrackCommand = new RelayCommand<CdAudioTrack>(RemoveAudioTrack);
@@ -221,20 +229,22 @@ public partial class WizardViewModel : ObservableObject
         PrevStepCommand = new RelayCommand(ExecutePrevStep, CanExecutePrevStep);
         GoToStepCommand = new RelayCommand<object>(param =>
         {
+            if (IsBurning) return;
             if (param is int i) SetStep((WizardStep)i);
             else if (param is string s && int.TryParse(s, out int parsed)) SetStep((WizardStep)parsed);
-        });
+        }, _ => !IsBurning);
+
         FitToDiscCommand = new RelayCommand(FitImageToDisc);
         CenterImageCommand = new RelayCommand(() => { TranslateXMm = 0; TranslateYMm = 0; SyncLayoutToLayer(); });
         ResetRotationCommand = new RelayCommand(() => { RotationDeg = 0; SyncLayoutToLayer(); });
         RefreshDevicesCommand = new RelayCommand(() => _burn.RefreshDevicesCommand.Execute(null));
         StartBurnCommand = new AsyncRelayCommand(ExecuteBurnAsync, () => ConfirmBurnChecked && SelectedDevice is not null && !IsBurning && !IsAudioCapacityExceeded);
-        CancelBurnCommand = new RelayCommand(() => _burn.CancelBurnCommand.Execute(null));
-        SaveProjectCommand = new AsyncRelayCommand(ExecuteSaveProjectAsync);
-        ExportMasterCommand = new AsyncRelayCommand(ExecuteExportMasterAsync);
-        GenerateHybridMasterCommand = new AsyncRelayCommand(ExecuteGenerateHybridMasterAsync);
-        ResetWizardCommand = new RelayCommand(ResetWizard);
-        ReturnHomeCommand = new RelayCommand(() => _shell.NavigateTo(Workspace.Home));
+        CancelBurnCommand = new RelayCommand(() => _burn.CancelBurnCommand.Execute(null), () => IsBurning);
+        SaveProjectCommand = new AsyncRelayCommand(ExecuteSaveProjectAsync, () => !IsBurning);
+        ExportMasterCommand = new AsyncRelayCommand(ExecuteExportMasterAsync, () => !IsBurning);
+        GenerateHybridMasterCommand = new AsyncRelayCommand(ExecuteGenerateHybridMasterAsync, () => !IsBurning);
+        ResetWizardCommand = new RelayCommand(ResetWizard, () => !IsBurning);
+        ReturnHomeCommand = new RelayCommand(() => _shell.NavigateTo(Workspace.Home), () => !IsBurning);
 
         _burn.PropertyChanged += Burn_PropertyChanged;
         RecalculateCapacity();
@@ -242,14 +252,33 @@ public partial class WizardViewModel : ObservableObject
 
     private void Burn_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(BurnViewModel.Devices)
+        if (e.PropertyName == nameof(BurnViewModel.IsBurnRunning))
+        {
+            OnPropertyChanged(nameof(IsBurning));
+            NextStepCommand.NotifyCanExecuteChanged();
+            PrevStepCommand.NotifyCanExecuteChanged();
+            GoToStepCommand.NotifyCanExecuteChanged();
+            StartBurnCommand.NotifyCanExecuteChanged();
+            CancelBurnCommand.NotifyCanExecuteChanged();
+            SaveProjectCommand.NotifyCanExecuteChanged();
+            ExportMasterCommand.NotifyCanExecuteChanged();
+            ResetWizardCommand.NotifyCanExecuteChanged();
+            ReturnHomeCommand.NotifyCanExecuteChanged();
+        }
+        else if (e.PropertyName == nameof(BurnViewModel.BurnProgressValue))
+        {
+            OnPropertyChanged(nameof(BurnProgress));
+            OnPropertyChanged(nameof(BurnProgressPercentText));
+        }
+        else if (e.PropertyName == nameof(BurnViewModel.BurnStatusText))
+        {
+            OnPropertyChanged(nameof(BurnStatusText));
+        }
+        else if (e.PropertyName is nameof(BurnViewModel.Devices)
             or nameof(BurnViewModel.SelectedDevice)
             or nameof(BurnViewModel.Speeds)
             or nameof(BurnViewModel.SelectedSpeed)
             or nameof(BurnViewModel.ConfirmChecked)
-            or nameof(BurnViewModel.IsBurnRunning)
-            or nameof(BurnViewModel.BurnProgressValue)
-            or nameof(BurnViewModel.BurnStatusText)
             or nameof(BurnViewModel.DeviceStatusText)
             or nameof(BurnViewModel.SpeedStatusText))
         {
@@ -339,7 +368,7 @@ public partial class WizardViewModel : ObservableObject
         CdDiscParameters discParams = new(
             InnerRadiusMm,
             OuterRadiusMm,
-            IsCd ? 359_849 : 2_295_104,
+            IsCd ? 359_849 : (IsDvd ? 2_295_104 : 12_219_392),
             1.2,
             0.0,
             OuterRadiusMm,
@@ -355,12 +384,12 @@ public partial class WizardViewModel : ObservableObject
         }
         else
         {
-            AudioSummaryText = "No audio tracks attached (Full disc surface available for visual artwork: 32.3 mm)";
+            AudioSummaryText = $"No audio tracks attached (Full disc surface available for visual artwork: {OuterRadiusMm - InnerRadiusMm:F1} mm)";
         }
 
-        // Keep design layer inner/outer radii matched
         SyncImageToDesignLayer();
         StartBurnCommand.NotifyCanExecuteChanged();
+        NextStepCommand.NotifyCanExecuteChanged();
     }
 
     // ---- Image Artwork Handling ----
@@ -387,6 +416,17 @@ public partial class WizardViewModel : ObservableObject
                 ImageInfoText = $"{Path.GetFileName(path)} ({bmp.PixelWidth}×{bmp.PixelHeight} px, {fi.Length / 1024:N0} KB)";
                 EnsureProjectOpen();
                 SyncImageToDesignLayer();
+
+                // Load raw raster for dynamic real-time dithering preview
+                try
+                {
+                    _rawSourceRaster = RasterCodec.LoadBgra32(path);
+                    UpdateDitherPreview();
+                }
+                catch
+                {
+                    // Fall back to original image
+                }
             }
         }
         catch (Exception ex)
@@ -398,10 +438,10 @@ public partial class WizardViewModel : ObservableObject
 
     private void EnsureProjectOpen()
     {
-        if (!_shell.IsProjectOpen)
+        if (!_shell.IsProjectOpen || _shell.CurrentProject?.Family != SelectedFormat)
         {
             string projName = Path.GetFileNameWithoutExtension(ImagePath ?? "MyDisc");
-            _shell.RequestNewProjectFromTemplateAsync(SelectedFormat, null).GetAwaiter().GetResult();
+            _shell.CreateAndOpenProjectHeadless(SelectedFormat, projName);
             ProjectSaveName = projName;
         }
     }
@@ -454,28 +494,71 @@ public partial class WizardViewModel : ObservableObject
 
     partial void OnSelectedFormatChanged(OpticalDiscFamily value)
     {
-        if (_shell.IsProjectOpen && _shell.CurrentProject?.Family != value)
+        if (_shell.IsProjectOpen)
         {
-            _shell.RequestNewProjectFromTemplateAsync(value, null).GetAwaiter().GetResult();
+            string projName = ProjectSaveName;
+            _shell.CreateAndOpenProjectHeadless(value, projName);
         }
         RecalculateCapacity();
         SyncImageToDesignLayer();
+        UpdateDitherPreview();
+    }
+
+    partial void OnSelectedDitherChanged(string value) => UpdateDitherPreview();
+
+    private async void UpdateDitherPreview()
+    {
+        if (_rawSourceRaster is null) return;
+        var raw = _rawSourceRaster;
+        var algo = SelectedDither switch
+        {
+            "FloydSteinberg" => DitherAlgorithm.FloydSteinberg,
+            "Bayer" => DitherAlgorithm.BayerOrdered4x4,
+            "Threshold" => DitherAlgorithm.NoneThreshold,
+            _ => DitherAlgorithm.BlueNoiseVoidCluster,
+        };
+        var dye = SelectedFormat switch
+        {
+            OpticalDiscFamily.BluRay => OpticalDyeType.InorganicBdrHtl,
+            OpticalDiscFamily.Dvd => OpticalDyeType.AzoDarkBlue,
+            _ => OpticalDyeType.PhthalocyanineGold,
+        };
+
+        try
+        {
+            BgraRaster dithered = await Task.Run(() => ImageDitherProcessor.Process(raw, algo, 1.0, dye));
+            BitmapSource bmp = BitmapSource.Create(
+                dithered.Width,
+                dithered.Height,
+                96,
+                96,
+                System.Windows.Media.PixelFormats.Bgra32,
+                null,
+                dithered.Pixels,
+                dithered.Width * 4);
+            bmp.Freeze();
+            ImagePreview = bmp;
+        }
+        catch
+        {
+            // Keep current preview on failure
+        }
     }
 
     public bool CanExecuteNextStep() => CurrentStep switch
     {
         WizardStep.LoadImage => HasImage && !IsAudioCapacityExceeded,
         WizardStep.PositionLayout => true,
-        WizardStep.FinalizeBurn => true,
+        WizardStep.FinalizeBurn => !IsBurning,
         WizardStep.SaveDesign => true,
         _ => false,
     };
 
-    public bool CanExecutePrevStep() => CurrentStep > WizardStep.LoadImage;
+    public bool CanExecutePrevStep() => !IsBurning && CurrentStep > WizardStep.LoadImage;
 
     public void ExecuteNextStep()
     {
-        if (CurrentStep < WizardStep.SaveDesign)
+        if (CurrentStep < WizardStep.SaveDesign && !IsBurning)
         {
             SetStep(CurrentStep + 1);
         }
@@ -483,7 +566,7 @@ public partial class WizardViewModel : ObservableObject
 
     public void ExecutePrevStep()
     {
-        if (CurrentStep > WizardStep.LoadImage)
+        if (CurrentStep > WizardStep.LoadImage && !IsBurning)
         {
             SetStep(CurrentStep - 1);
         }
@@ -491,6 +574,7 @@ public partial class WizardViewModel : ObservableObject
 
     public void SetStep(WizardStep step)
     {
+        if (IsBurning) return;
         if (step > WizardStep.LoadImage && !HasImage) return;
 
         CurrentStep = step;
@@ -520,22 +604,104 @@ public partial class WizardViewModel : ObservableObject
 
     private async Task ExecuteSaveProjectAsync()
     {
-        string? picked = _shell.Dialogs?.PickSave(
-            L.T("Save Disc Project"),
-            $"{ProjectSaveName}.discproj",
-            L.T("Disc Image Studio Project|*.discproj"));
-
-        if (!string.IsNullOrWhiteSpace(picked))
+        if (IsBurning)
         {
-            await _shell.SaveProjectAsCommand.ExecuteAsync(null);
+            _shell.ShowToast("Cannot Save", "Optical disc burning is active. Please wait until finished.", ToastKind.Warning);
+            return;
+        }
+
+        string defaultFileName = string.IsNullOrWhiteSpace(ProjectSaveName) ? "MyDiscDesign.discproj" : $"{ProjectSaveName}.discproj";
+        string? picked = _shell.Dialogs?.PickSave(
+            "Save Disc Project",
+            defaultFileName,
+            "Disc Image Studio Project (*.discproj)|*.discproj");
+
+        if (string.IsNullOrWhiteSpace(picked)) return;
+
+        try
+        {
+            _shell.SetBusy(true);
+
+            DateTimeOffset now = DateTimeOffset.Now;
+            string familyStr = SelectedFormat switch
+            {
+                OpticalDiscFamily.Dvd => ProjectDocument.DvdFamily,
+                OpticalDiscFamily.BluRay => ProjectDocument.BluRayFamily,
+                _ => ProjectDocument.CdFamily,
+            };
+            bool compactDisc = SelectedFormat == OpticalDiscFamily.CompactDisc;
+            bool bluRay = SelectedFormat == OpticalDiscFamily.BluRay;
+
+            List<ProjectLayer> layers = [];
+            if (!string.IsNullOrWhiteSpace(ImagePath) && File.Exists(ImagePath))
+            {
+                layers.Add(new ProjectLayer(
+                    Guid.NewGuid().ToString("N"),
+                    Path.GetFileName(ImagePath),
+                    ImagePath,
+                    true,
+                    TranslateXMm,
+                    TranslateYMm,
+                    RotationDeg,
+                    ScalePercent / 100.0));
+            }
+
+            string outPath = Path.Combine(
+                Path.GetDirectoryName(picked) ?? string.Empty,
+                Path.GetFileNameWithoutExtension(picked) + (compactDisc ? ".wav" : ".iso"));
+
+            ProjectDocument doc = new(
+                ProjectJsonStore.CurrentSchemaVersion,
+                Path.GetFileNameWithoutExtension(picked),
+                familyStr,
+                new ProjectGeometry(
+                    InnerRadiusMm,
+                    OuterRadiusMm,
+                    SelectedFormat switch
+                    {
+                        OpticalDiscFamily.Dvd => 2_295_104,
+                        OpticalDiscFamily.BluRay => 12_219_392,
+                        _ => 359_849,
+                    },
+                    0.0,
+                    0.0,
+                    0.0),
+                layers,
+                new ProjectOutputs(
+                    outPath,
+                    WriteCue: compactDisc,
+                    DataDirectory: string.Empty,
+                    VolumeLabel: bluRay ? "BD_IMAGE" : compactDisc ? "CD_IMAGE" : "DISC_IMAGE",
+                    Interleave: compactDisc),
+                CalibrationSessionPath: null,
+                ThumbnailPngBase64: null,
+                now,
+                now,
+                Tone: ToneProfile.Photo,
+                BluRay: bluRay ? new ProjectBluRaySettings(false) : null);
+
+            await Task.Run(() => ProjectJsonStore.Save(picked, doc));
+            _shell.SetSavedProject(picked, doc);
+            _shell.IsDirty = false;
+
             LastSavedPath = picked;
             IsSaved = true;
             _shell.ShowToast("Project Saved", $"Disc project successfully saved to:\n{picked}", ToastKind.Success);
+        }
+        catch (Exception ex)
+        {
+            _shell.ShowToast("Save Failed", ex.Message, ToastKind.Error);
+        }
+        finally
+        {
+            _shell.SetBusy(false);
         }
     }
 
     private async Task ExecuteExportMasterAsync()
     {
+        if (IsBurning) return;
+
         if (HasAudioTracks && IsCd)
         {
             await ExecuteGenerateHybridMasterAsync();
@@ -550,6 +716,8 @@ public partial class WizardViewModel : ObservableObject
 
     public async Task ExecuteGenerateHybridMasterAsync()
     {
+        if (IsBurning) return;
+
         if (!HasImage || AudioTracks.Count == 0)
         {
             _shell.ShowToast("Cannot Generate Master", "Both an artwork image and at least one audio track are required for hybrid mastering.", ToastKind.Warning);
@@ -558,7 +726,7 @@ public partial class WizardViewModel : ObservableObject
 
         string defaultName = $"{ProjectSaveName}_AudioVisualMaster.wav";
         string? picked = _shell.Dialogs?.PickSave(
-            L.T("Export Master WAV & CUE"),
+            "Export Master WAV & CUE",
             defaultName,
             "Waveform Audio Master (*.wav)|*.wav");
 
@@ -604,8 +772,10 @@ public partial class WizardViewModel : ObservableObject
 
     public void ResetWizard()
     {
+        if (IsBurning) return;
         ImagePath = null;
         ImagePreview = null;
+        _rawSourceRaster = null;
         ImageInfoText = "No image loaded";
         AudioTracks.Clear();
         RecalculateCapacity();

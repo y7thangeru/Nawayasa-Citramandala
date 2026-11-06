@@ -722,6 +722,14 @@ public partial class BurnViewModel : ObservableObject
                 {
                     _shell.ReportBurnProgress(value);
                     BurnProgressValue = _shell.JobProgressValue;
+                    if (value.Stage == "write")
+                    {
+                        BurnStatusText = $"{_shell.BurnAmountText} · {_shell.BurnRateText} · {_shell.BurnMultiplierText}";
+                    }
+                    else if (!string.IsNullOrWhiteSpace(value.Message))
+                    {
+                        BurnStatusText = value.Message;
+                    }
                     return;
                 }
                 string? diagnostic = calibrationProgress.Apply(value);

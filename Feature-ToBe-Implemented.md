@@ -63,6 +63,9 @@ Daftar pelacakan siklus hidup fitur (Feature Lifecycle Tracking) untuk evolusi d
     - [x] **Step 2: Position on Disc Layout**: Kanvas interaktif tata letak piringan dengan simulasi batas annulus fisik, lubang spindle, kontrol Scale, Rotasi, Offset X/Y, tombol presisi cepat (Fit, Center, Reset), dan dither Blue Noise.
     - [x] **Step 3: Finalize & Burn**: Ringkasan payload & sektor, deteksi otomatis optical drive recorder via Windows IMAPI2, pemilihan kecepatan bakar, dan progress bar streaming burn real-time.
     - [x] **Step 4: Save Design Option**: Opsi menyimpan proyek desain (.discproj) agar dapat diburn kembali di kemudian hari, serta tombol ekspor master ISO/WAV.
+    - [x] **Interactive Mouse Drag & Live Dither Preview**: Pengguna dapat menggeser gambar langsung pada kanvas dengan mouse (drag-and-drop), zoom via mousewheel, dan melihat pratinjau dithering optik langsung (Blue Noise, Floyd-Steinberg, Bayer, Threshold).
+    - [x] **Headless Project Management**: Pembuatan proyek wizard berjalan tanpa dialog pop-up yang mengganggu saat memuat gambar atau memilih format media.
+    - [x] **Safe Burn Telemetry & Save Protection**: Proteksi penguncian navigasi selama pembakaran piringan optik berlangsung, indikator progres persentase & kecepatan (MB/s) yang akurat, serta penyimpanan proyek (.discproj) tanpa freeze.
   - **Full English Localization Standardization**:
     - [x] Standardisasi seluruh teks dan katalog preset (`built-in-disc-presets.json`, `DiscPresetJsonStore`, `L.cs`) ke bahasa Inggris secara penuh.
   - **Inovasi GUI Spinoff**:

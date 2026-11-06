@@ -105,83 +105,186 @@
             <StackPanel x:Name="Step1Panel">
                 <!-- Optical Disc Format Selector -->
                 <controls:SectionCard Header="Step 1A: Select Optical Disc Media" IconKind="Disc" Margin="0,0,0,20">
-                    <Grid>
+                    <Grid Margin="0,0,0,4">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="14" />
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="14" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
-                        <!-- CD-R Tile -->
-                        <RadioButton Grid.Column="0" GroupName="DiscFormatGroup"
-                                     IsChecked="{Binding IsCd, Mode=OneWay}"
-                                     Click="SelectCdFormat">
-                            <RadioButton.Template>
-                                <ControlTemplate TargetType="RadioButton">
-                                    <Border Background="{DynamicResource Surface2Brush}" BorderBrush="{DynamicResource DividerBrush}"
-                                            BorderThickness="1" CornerRadius="{StaticResource RadiusCard}" Padding="16"
-                                            Cursor="Hand">
-                                        <StackPanel>
-                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                                <iconPacks:PackIconLucide Kind="Disc3" Width="20" Height="20" Foreground="{DynamicResource PrimaryBrush}" />
-                                                <TextBlock Text="CD-R" FontWeight="Bold" FontSize="15" Margin="8,0,0,0" />
-                                            </StackPanel>
-                                            <TextBlock Text="Standard 80 min (700 MB)" Style="{StaticResource BodyText}" />
-                                            <TextBlock Text="Printable area: 24.5 – 56.8 mm" Style="{StaticResource CompactHint}" Margin="0,4,0,0" />
-                                            <Border Background="#267C4DFF" CornerRadius="4" Padding="6,2" Margin="0,8,0,0" HorizontalAlignment="Left">
-                                                <TextBlock Text="Supports Audio CD + Visual Hybrid" Style="{StaticResource MicroText}" Foreground="{DynamicResource PrimaryBrush}" FontWeight="SemiBold" />
-                                            </Border>
+                        <!-- CD-R Card -->
+                        <Button Grid.Column="0" Command="{Binding SelectFormatCommand}" CommandParameter="{x:Static core:OpticalDiscFamily.CompactDisc}"
+                                HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Padding="0" BorderThickness="0" Background="Transparent" Cursor="Hand">
+                            <Border BorderThickness="2" CornerRadius="{StaticResource RadiusCard}" Padding="16">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="{DynamicResource Surface2Brush}" />
+                                        <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsCd}" Value="True">
+                                                <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" />
+                                                <Setter Property="Background" Value="#221e35" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <StackPanel>
+                                    <DockPanel Margin="0,0,0,8">
+                                        <StackPanel Orientation="Horizontal">
+                                            <iconPacks:PackIconLucide Kind="Disc3" Width="20" Height="20" Foreground="{DynamicResource PrimaryBrush}" VerticalAlignment="Center" />
+                                            <TextBlock Text="CD-R" FontWeight="Bold" FontSize="16" Margin="8,0,0,0" VerticalAlignment="Center" />
                                         </StackPanel>
+                                        <!-- Checked Indicator Circle -->
+                                        <Border Width="18" Height="18" CornerRadius="9" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}" />
+                                                    <Setter Property="BorderThickness" Value="2" />
+                                                    <Setter Property="Background" Value="Transparent" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsCd}" Value="True">
+                                                            <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" />
+                                                            <Setter Property="Background" Value="{DynamicResource PrimaryBrush}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <Ellipse Width="6" Height="6" Fill="White" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Ellipse.Style>
+                                                    <Style TargetType="Ellipse">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsCd}" Value="True">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Ellipse.Style>
+                                            </Ellipse>
+                                        </Border>
+                                    </DockPanel>
+                                    <TextBlock Text="Standard 80 min (700 MB)" Style="{StaticResource BodyText}" />
+                                    <TextBlock Text="Printable area: 24.5 – 56.8 mm" Style="{StaticResource CompactHint}" Margin="0,4,0,0" />
+                                    <Border Background="#267C4DFF" CornerRadius="4" Padding="6,2" Margin="0,8,0,0" HorizontalAlignment="Left">
+                                        <TextBlock Text="Supports Audio CD + Visual Hybrid" Style="{StaticResource MicroText}" Foreground="{DynamicResource PrimaryBrush}" FontWeight="SemiBold" />
                                     </Border>
-                                </ControlTemplate>
-                            </RadioButton.Template>
-                        </RadioButton>
+                                </StackPanel>
+                            </Border>
+                        </Button>
 
-                        <!-- DVD-R Tile -->
-                        <RadioButton Grid.Column="2" GroupName="DiscFormatGroup"
-                                     IsChecked="{Binding IsDvd, Mode=OneWay}"
-                                     Click="SelectDvdFormat">
-                            <RadioButton.Template>
-                                <ControlTemplate TargetType="RadioButton">
-                                    <Border Background="{DynamicResource Surface2Brush}" BorderBrush="{DynamicResource DividerBrush}"
-                                            BorderThickness="1" CornerRadius="{StaticResource RadiusCard}" Padding="16"
-                                            Cursor="Hand">
-                                        <StackPanel>
-                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                                <iconPacks:PackIconLucide Kind="Disc" Width="20" Height="20" Foreground="{DynamicResource PrimaryBrush}" />
-                                                <TextBlock Text="DVD-R / DVD+R" FontWeight="Bold" FontSize="15" Margin="8,0,0,0" />
-                                            </StackPanel>
-                                            <TextBlock Text="Single Layer 120 mm (4.7 GB)" Style="{StaticResource BodyText}" />
-                                            <TextBlock Text="Printable area: 24.0 – 58.0 mm" Style="{StaticResource CompactHint}" Margin="0,4,0,0" />
+                        <!-- DVD-R Card -->
+                        <Button Grid.Column="2" Command="{Binding SelectFormatCommand}" CommandParameter="{x:Static core:OpticalDiscFamily.Dvd}"
+                                HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Padding="0" BorderThickness="0" Background="Transparent" Cursor="Hand">
+                            <Border BorderThickness="2" CornerRadius="{StaticResource RadiusCard}" Padding="16">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="{DynamicResource Surface2Brush}" />
+                                        <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsDvd}" Value="True">
+                                                <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" />
+                                                <Setter Property="Background" Value="#221e35" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <StackPanel>
+                                    <DockPanel Margin="0,0,0,8">
+                                        <StackPanel Orientation="Horizontal">
+                                            <iconPacks:PackIconLucide Kind="Disc" Width="20" Height="20" Foreground="{DynamicResource PrimaryBrush}" VerticalAlignment="Center" />
+                                            <TextBlock Text="DVD-R / DVD+R" FontWeight="Bold" FontSize="16" Margin="8,0,0,0" VerticalAlignment="Center" />
                                         </StackPanel>
-                                    </Border>
-                                </ControlTemplate>
-                            </RadioButton.Template>
-                        </RadioButton>
+                                        <Border Width="18" Height="18" CornerRadius="9" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}" />
+                                                    <Setter Property="BorderThickness" Value="2" />
+                                                    <Setter Property="Background" Value="Transparent" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsDvd}" Value="True">
+                                                            <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" />
+                                                            <Setter Property="Background" Value="{DynamicResource PrimaryBrush}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <Ellipse Width="6" Height="6" Fill="White" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Ellipse.Style>
+                                                    <Style TargetType="Ellipse">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsDvd}" Value="True">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Ellipse.Style>
+                                            </Ellipse>
+                                        </Border>
+                                    </DockPanel>
+                                    <TextBlock Text="Single Layer 120 mm (4.7 GB)" Style="{StaticResource BodyText}" />
+                                    <TextBlock Text="Printable area: 24.0 – 58.0 mm" Style="{StaticResource CompactHint}" Margin="0,4,0,0" />
+                                </StackPanel>
+                            </Border>
+                        </Button>
 
-                        <!-- BD-R Tile -->
-                        <RadioButton Grid.Column="4" GroupName="DiscFormatGroup"
-                                     IsChecked="{Binding IsBluRay, Mode=OneWay}"
-                                     Click="SelectBdFormat">
-                            <RadioButton.Template>
-                                <ControlTemplate TargetType="RadioButton">
-                                    <Border Background="{DynamicResource Surface2Brush}" BorderBrush="{DynamicResource DividerBrush}"
-                                            BorderThickness="1" CornerRadius="{StaticResource RadiusCard}" Padding="16"
-                                            Cursor="Hand">
-                                        <StackPanel>
-                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                                <iconPacks:PackIconLucide Kind="DiscAlbum" Width="20" Height="20" Foreground="{DynamicResource PrimaryBrush}" />
-                                                <TextBlock Text="BD-R (Blu-ray)" FontWeight="Bold" FontSize="15" Margin="8,0,0,0" />
-                                            </StackPanel>
-                                            <TextBlock Text="Single Layer 120 mm (25 GB)" Style="{StaticResource BodyText}" />
-                                            <TextBlock Text="Printable area: 24.0 – 58.0 mm" Style="{StaticResource CompactHint}" Margin="0,4,0,0" />
+                        <!-- BD-R Card -->
+                        <Button Grid.Column="4" Command="{Binding SelectFormatCommand}" CommandParameter="{x:Static core:OpticalDiscFamily.BluRay}"
+                                HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Padding="0" BorderThickness="0" Background="Transparent" Cursor="Hand">
+                            <Border BorderThickness="2" CornerRadius="{StaticResource RadiusCard}" Padding="16">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="{DynamicResource Surface2Brush}" />
+                                        <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsBluRay}" Value="True">
+                                                <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" />
+                                                <Setter Property="Background" Value="#221e35" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <StackPanel>
+                                    <DockPanel Margin="0,0,0,8">
+                                        <StackPanel Orientation="Horizontal">
+                                            <iconPacks:PackIconLucide Kind="DiscAlbum" Width="20" Height="20" Foreground="{DynamicResource PrimaryBrush}" VerticalAlignment="Center" />
+                                            <TextBlock Text="BD-R (Blu-ray)" FontWeight="Bold" FontSize="16" Margin="8,0,0,0" VerticalAlignment="Center" />
                                         </StackPanel>
-                                    </Border>
-                                </ControlTemplate>
-                            </RadioButton.Template>
-                        </RadioButton>
+                                        <Border Width="18" Height="18" CornerRadius="9" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}" />
+                                                    <Setter Property="BorderThickness" Value="2" />
+                                                    <Setter Property="Background" Value="Transparent" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsBluRay}" Value="True">
+                                                            <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" />
+                                                            <Setter Property="Background" Value="{DynamicResource PrimaryBrush}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <Ellipse Width="6" Height="6" Fill="White" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Ellipse.Style>
+                                                    <Style TargetType="Ellipse">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsBluRay}" Value="True">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Ellipse.Style>
+                                            </Ellipse>
+                                        </Border>
+                                    </DockPanel>
+                                    <TextBlock Text="Single Layer 120 mm (25 GB)" Style="{StaticResource BodyText}" />
+                                    <TextBlock Text="Printable area: 24.0 – 58.0 mm" Style="{StaticResource CompactHint}" Margin="0,4,0,0" />
+                                </StackPanel>
+                            </Border>
+                        </Button>
                     </Grid>
                 </controls:SectionCard>
 
@@ -422,23 +525,28 @@
                         <ColumnDefinition Width="380" />
                     </Grid.ColumnDefinitions>
 
-                    <!-- Left: Disc Layout Canvas Preview -->
+                    <!-- Left: Disc Layout Canvas Preview with Interactive Mouse Drag & Zoom -->
                     <Border Grid.Column="0" Background="{DynamicResource Surface1Brush}"
                             BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
                             CornerRadius="{StaticResource RadiusCard}" Padding="16" Height="500">
-                        <Grid ClipToBounds="True">
+                        <Grid x:Name="DiscCanvas" ClipToBounds="True" Background="Transparent"
+                              Cursor="SizeAll"
+                              MouseLeftButtonDown="OnCanvasMouseLeftButtonDown"
+                              MouseMove="OnCanvasMouseMove"
+                              MouseLeftButtonUp="OnCanvasMouseLeftButtonUp"
+                              MouseWheel="OnCanvasMouseWheel">
                             <!-- Visual concentric disc rings background -->
                             <!-- Physical Disc Outer Rim (120mm) -->
                             <Ellipse Width="420" Height="420" Stroke="{DynamicResource DividerBrush}" StrokeThickness="2"
-                                     HorizontalAlignment="Center" VerticalAlignment="Center" Fill="#0c0d10" />
+                                     HorizontalAlignment="Center" VerticalAlignment="Center" Fill="#0c0d10" IsHitTestVisible="False" />
 
                             <!-- Printable Area Outer Ring (56.8 mm radius -> 397.6 px diameter) -->
                             <Ellipse Width="398" Height="398" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1.5"
-                                     StrokeDashArray="4 2" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                     StrokeDashArray="4 2" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" />
 
                             <!-- The Layer Image with user transformations -->
                             <Image Source="{Binding ImagePreview}" Stretch="Uniform" MaxWidth="398" MaxHeight="398"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center">
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
                                 <Image.RenderTransform>
                                     <TransformGroup>
                                         <ScaleTransform ScaleX="{Binding ScalePercent, Converter={StaticResource ScalePercentToFactorConverter}}"
@@ -454,31 +562,31 @@
                             <Ellipse Width="{Binding AudioZoneDiameterPx}" Height="{Binding AudioZoneDiameterPx}"
                                      Stroke="#00bcd4" StrokeThickness="2" StrokeDashArray="3 2"
                                      Fill="#3300bcd4" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                     Visibility="{Binding HasAudioTracks, Converter={StaticResource BoolToVis}}" />
+                                     Visibility="{Binding HasAudioTracks, Converter={StaticResource BoolToVis}}" IsHitTestVisible="False" />
 
                             <!-- Non-printable Inner Clamp Mask (Hub 15mm & Inner Data boundary 24.5mm) -->
                             <Ellipse Width="171.5" Height="171.5" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="1"
-                                     StrokeDashArray="3 3" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                     StrokeDashArray="3 3" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" />
                             <Ellipse Width="105" Height="105" Stroke="{DynamicResource TextMutedBrush}" StrokeThickness="2"
-                                     Fill="#1a1c22" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                     Fill="#1a1c22" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" />
                             <!-- Center Spindle Hole -->
                             <Ellipse Width="52.5" Height="52.5" Stroke="{DynamicResource DividerBrush}" StrokeThickness="1"
-                                     Fill="#000000" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                     Fill="#000000" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" />
 
                             <!-- Canvas Badges & Overlay Legends -->
-                            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="12">
+                            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="12" IsHitTestVisible="False">
                                 <TextBlock Text="{Binding FormatName}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" />
                                 <TextBlock Text="{Binding AudioSummaryText}" Style="{StaticResource MicroText}"
                                            Foreground="#00bcd4" Margin="0,2,0,0" />
                             </StackPanel>
 
-                            <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="12">
+                            <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="12" IsHitTestVisible="False">
                                 <Border Background="{DynamicResource Surface2Brush}" CornerRadius="4" Padding="8,4" Margin="0,0,0,4">
                                     <TextBlock Text="{Binding ArtworkRadialWidthText, StringFormat='Available Artwork: {0}'}"
                                                Style="{StaticResource MicroText}" Foreground="{DynamicResource PrimaryBrush}" FontWeight="SemiBold" />
                                 </Border>
-                                <TextBlock Text="Dashed rings = Outer printable &amp; inner audio boundaries"
-                                           Style="{StaticResource MicroText}" Foreground="{DynamicResource TextMutedBrush}" HorizontalAlignment="Right" />
+                                <TextBlock Text="💡 Click &amp; drag mouse to move · Scroll wheel to zoom"
+                                           Style="{StaticResource MicroText}" Foreground="{DynamicResource PrimaryBrush}" FontWeight="SemiBold" HorizontalAlignment="Right" />
                             </StackPanel>
                         </Grid>
                     </Border>
@@ -536,14 +644,14 @@
                             </StackPanel>
                         </controls:SectionCard>
 
-                        <!-- Dithering & Tone -->
+                        <!-- Dithering & Optical Tone -->
                         <controls:SectionCard Header="Optical Tone &amp; Dithering" IconKind="SlidersHorizontal" Margin="0,0,0,16">
                             <StackPanel>
                                 <TextBlock Text="Dither Algorithm:" Style="{StaticResource FieldLabel}" Margin="0,0,0,4" />
                                 <ComboBox ItemsSource="{Binding DitherOptions}" SelectedItem="{Binding SelectedDither}"
                                           Margin="0,0,0,8" />
-                                <TextBlock Text="Blue Noise provides ultra-smooth dye gradient on optical tracks"
-                                           Style="{StaticResource MicroText}" Foreground="{DynamicResource TextMutedBrush}" />
+                                <TextBlock Text="Real-time dither preview: Blue Noise provides ultra-smooth dye gradient on optical tracks"
+                                           Style="{StaticResource MicroText}" Foreground="{DynamicResource PrimaryBrush}" />
                             </StackPanel>
                         </controls:SectionCard>
                     </StackPanel>
@@ -589,13 +697,13 @@
                             </StackPanel>
                             <StackPanel Grid.Column="3">
                                 <TextBlock Text="Burn Status" Style="{StaticResource MicroText}" Foreground="{DynamicResource TextMutedBrush}" />
-                                <TextBlock Text="Payload Ready" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource SuccessBrush}" Margin="0,2,0,0" />
+                                <TextBlock Text="{Binding BurnStatusText}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource SuccessBrush}" Margin="0,2,0,0" />
                             </StackPanel>
                         </Grid>
                     </Border>
                 </controls:SectionCard>
 
-                <!-- Optical Recorder & Burn Speed -->
+                <!-- Optical Drive & Speed Configuration -->
                 <controls:SectionCard Header="Step 3B: Optical Burner &amp; Speed" IconKind="Flame" Margin="0,0,0,20">
                     <StackPanel>
                         <TextBlock Text="Optical Recorder Drive:" Style="{StaticResource FieldLabel}" Margin="0,0,0,4" />
@@ -623,7 +731,7 @@
                     </StackPanel>
                 </controls:SectionCard>
 
-                <!-- Burn Execution & Progress -->
+                <!-- Burn Execution & Live Progress Card -->
                 <Border Style="{StaticResource DangerCard}" Margin="0,0,0,20">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
@@ -650,16 +758,37 @@
                                     Visibility="{Binding HasAudioTracks, Converter={StaticResource BoolToVis}}" />
                         </DockPanel>
 
-                        <!-- Progress Bar & Status -->
-                        <StackPanel Margin="0,16,0,0" Visibility="{Binding IsBurning, Converter={StaticResource BoolToVis}}">
-                            <ProgressBar Height="8" Minimum="0" Maximum="100" Value="{Binding BurnProgress, Mode=OneWay}"
-                                         Foreground="{DynamicResource PrimaryBrush}" Margin="0,0,0,8" />
-                            <TextBlock Text="{Binding BurnStatusText}" Style="{StaticResource HintText}" />
-                        </StackPanel>
+                        <!-- Live Progress Bar & Status Card -->
+                        <Border Background="{DynamicResource Surface2Brush}" BorderBrush="{DynamicResource PrimaryBrush}"
+                                BorderThickness="1.5" CornerRadius="8" Padding="16" Margin="0,16,0,0"
+                                Visibility="{Binding IsBurning, Converter={StaticResource BoolToVis}}">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,8">
+                                    <StackPanel Orientation="Horizontal">
+                                        <iconPacks:PackIconLucide Kind="Loader" Width="18" Height="18" Foreground="{DynamicResource PrimaryBrush}" VerticalAlignment="Center" />
+                                        <TextBlock Text="Writing to Optical Disc..." FontWeight="Bold" FontSize="14" Foreground="{DynamicResource PrimaryBrush}" Margin="8,0,0,0" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding BurnProgressPercentText}" FontWeight="Bold" FontSize="18" Foreground="{DynamicResource PrimaryBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                </DockPanel>
+
+                                <ProgressBar Height="14" Minimum="0" Maximum="100" Value="{Binding BurnProgress, Mode=OneWay}"
+                                             Foreground="{DynamicResource PrimaryBrush}" Margin="0,4,0,8" />
+
+                                <TextBlock Text="{Binding BurnStatusText}" Style="{StaticResource BodyText}" FontWeight="SemiBold" Margin="0,0,0,8" />
+
+                                <Border Background="#26E53935" CornerRadius="4" Padding="8,6">
+                                    <StackPanel Orientation="Horizontal">
+                                        <iconPacks:PackIconLucide Kind="ShieldAlert" Width="16" Height="16" Foreground="{DynamicResource DangerBrush}" VerticalAlignment="Center" />
+                                        <TextBlock Text="Optical drive is locked during burning. Do not eject disc or disconnect drive until burn completes."
+                                                   Style="{StaticResource MicroText}" Foreground="{DynamicResource DangerBrush}" FontWeight="SemiBold" Margin="6,0,0,0" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                 </Border>
 
-                <!-- Navigation Action Bar -->
+                <!-- Navigation Action Bar (Disabled while burning) -->
                 <DockPanel LastChildFill="False">
                     <Button DockPanel.Dock="Left" Style="{StaticResource SecondaryButton}"
                             Content="⬅ Back to Step 2 (Positioning)" Height="42" Padding="20,0"

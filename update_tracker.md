@@ -239,3 +239,32 @@ Dokumen ini mencatat setiap perubahan, penambahan, refaktor, dan perbaikan dalam
     2. `ArgumentException: Parameter cannot be of type System.String as command requires System.Int32`: Pada tombol navigasi tab wizard (Step 1 s.d. 4), XAML mengirimkan `string` `"1"`. Diperbaiki dengan mengizinkan `RelayCommand<object>` dengan parsing aman `int.TryParse`.
     3. `InvalidOperationException: TwoWay binding cannot work on read-only property 'BurnProgress'`: Diperbaiki dengan menambahkan setter dan mendeklarasikan `Mode=OneWay` pada `ProgressBar.Value`.
   - Berhasil meluncurkan GUI aplikasi langsung ke sesi Desktop Windows pengguna via Windows Explorer (`PID: 32868`, `MainWindowTitle: Disc Image Studio`, `Responding: True`).
+
+### [2026-11-06 11:23:00 +07:00] - Penyelesaian 5 Masalah Utama Wizard: Dialog Pop-up, Drag Canvas Mouse, Live Dither Preview, Media Selection, & Burn/Save Lock
+- **Action Type**: [FIX] / [REFACTOR]
+- **File Paths**:
+  - src/NawayasaCitramandala.App/ViewModels/ShellViewModel.cs [MODIFY]
+  - src/NawayasaCitramandala.App/ViewModels/BurnViewModel.cs [MODIFY]
+  - src/NawayasaCitramandala.App/ViewModels/WizardViewModel.cs [FIX] / [REFACTOR]
+  - src/NawayasaCitramandala.App/Views/WizardView.xaml [FIX] / [REFACTOR]
+  - src/NawayasaCitramandala.App/Views/WizardView.xaml.cs [FIX] / [NEW]
+  - publish/win-x64-standalone/NawayasaCitramandala.exe [REFACTOR]
+  - NawayasaCitramandala.exe [REFACTOR]
+  - update_tracker.md [MODIFY]
+- **Reasoning**:
+  - Issue 1 (Dialog Pop-up saat Load Image): EnsureProjectOpen() sebelumnya memanggil _shell.RequestNewProjectFromTemplateAsync(..., null) yang membuka modal ProjectDialogWindow. Diperbaiki dengan mengimplementasikan CreateAndOpenProjectHeadless pada ShellViewModel sehingga pembuatan proyek di dalam Wizard berjalan headless di memori tanpa memunculkan dialog pop-up yang membingungkan.
+  - Issue 2 (Interaksi Mouse Drag-and-Drop & Live Dither Preview):
+    1. Menambahkan event handler canvas mouse (OnCanvasMouseLeftButtonDown, OnCanvasMouseMove, OnCanvasMouseLeftButtonUp, dan OnCanvasMouseWheel) dengan kursor SizeAll. Pengguna kini dapat langsung menggeser/menarik gambar dengan mouse secara halus (dikonversi dari piksel ke milimeter dengan faktor 3.5 px/mm) serta melakukan zoom in/out dengan scroll roda mouse.
+    2. Mengintegrasikan ImageDitherProcessor.Process(...) ke dalam WizardViewModel secara asinkron dengan caching raster mentah _rawSourceRaster. Saat algoritma dithering diganti (BlueNoise, FloydSteinberg, Bayer, Threshold), preview permukaan optik diperbarui secara real-time di layar.
+  - Issue 3 (Kartu Format Media CD/DVD/BD Tidak Bisa Diklik):
+    1. Mengganti RadioButton dengan kartu Button interaktif yang terikat ke SelectFormatCommand dan visual data-trigger yang jelas (border ungu menyala #7C4DFF, latar belakang gelap elegan #221e35, dan indikator radio bulat tercentang).
+    2. Menghilangkan pemanggilan dialog pop-up pada OnSelectedFormatChanged, sehingga pergantian media CD-R / DVD-R / BD-R terjadi seketika tanpa gangguan.
+  - Issue 4 (Status & Progress Bar Burning, serta Penguncian Navigasi):
+    1. Memperbaiki notifikasi properti Burn_PropertyChanged: sebelumnya XAML mengikat ke IsBurning dan BurnProgress, namun event notification memancarkan nama IsBurnRunning dan BurnProgressValue.
+    2. Memperbarui BurnViewModel.BurnStatusText agar memperbarui telemetri throughput (MB ditulis, kecepatan MB/s, multiplier) pada burning standar.
+    3. Mengunci navigasi Wizard (NextStepCommand, PrevStepCommand, dan tab langkah) saat IsBurning == true (CanExecute = false), sehingga tombol Proceed to Step 4 dinonaktifkan selama laser sedang membakar piringan optik.
+    4. Menambahkan kartu progress burn yang menonjol lengkap dengan persentase besar (e.g. 45%), animasi progress bar, status teks langsung, dan badge peringatan penguncian tray drive optik.
+  - Issue 5 (Aplikasi Hang saat Klik Save & Penguncian Drive CD):
+    1. ExecuteSaveProjectAsync() sebelumnya memanggil PickSave dua kali secara bertumpukan (PickSave lalu SaveProjectAsCommand yang memanggil PickSave lagi), memicu modal freeze/deadlock pada thread WPF. Diperbaiki dengan memanggil PickSave tepat satu kali, menyusun ProjectDocument, dan menyimpannya langsung via ProjectJsonStore.Save di task background.
+    2. Memastikan seluruh sesi IMAPI2 dan drive optik dilepaskan (finally COM release) sebelum save/export diizinkan.
+  - Mengompilasi seluruh solusi (0 warning, 0 error), memvalidasi seluruh unit tests (18 passed), mempublikasikan standalone binary baru ke NawayasaCitramandala.exe (172 MB), dan meluncurkan GUI langsung ke layar desktop pengguna (PID: 43316).

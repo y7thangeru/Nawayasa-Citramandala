@@ -1,4 +1,4 @@
-﻿using NawayasaCitramandala.Localization;
+using NawayasaCitramandala.Localization;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -498,6 +498,100 @@ public partial class ShellViewModel : ObservableObject
         CloseCurrentProject();
         OpenDocument(result.SavePath, document);
         ShowToast(L.T("工程已创建"), result.Name, ToastKind.Success);
+    }
+
+    /// <summary>Creates and opens a project in-memory without displaying any dialog or leaving the current workspace.</summary>
+    public void CreateAndOpenProjectHeadless(OpticalDiscFamily family, string projectName, string? savePath = null)
+    {
+        DateTimeOffset now = DateTimeOffset.Now;
+        string familyStr = family switch
+        {
+            OpticalDiscFamily.Dvd => ProjectDocument.DvdFamily,
+            OpticalDiscFamily.BluRay => ProjectDocument.BluRayFamily,
+            _ => ProjectDocument.CdFamily,
+        };
+        bool compactDisc = family == OpticalDiscFamily.CompactDisc;
+        bool bluRay = family == OpticalDiscFamily.BluRay;
+
+        double innerRadius = family switch
+        {
+            OpticalDiscFamily.Dvd => 24.0,
+            OpticalDiscFamily.BluRay => 24.0,
+            _ => 24.5,
+        };
+        double outerRadius = family switch
+        {
+            OpticalDiscFamily.Dvd => 58.0,
+            OpticalDiscFamily.BluRay => 58.0,
+            _ => 56.8,
+        };
+        int sectors = family switch
+        {
+            OpticalDiscFamily.Dvd => 2_295_104,
+            OpticalDiscFamily.BluRay => 12_219_392,
+            _ => 359_849,
+        };
+
+        string outPath = string.IsNullOrWhiteSpace(savePath)
+            ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), projectName + (compactDisc ? ".wav" : ".iso"))
+            : Path.Combine(Path.GetDirectoryName(savePath) ?? string.Empty, projectName + (compactDisc ? ".wav" : ".iso"));
+
+        ProjectDocument document = new(
+            ProjectJsonStore.CurrentSchemaVersion,
+            projectName,
+            familyStr,
+            new ProjectGeometry(
+                innerRadius,
+                outerRadius,
+                sectors,
+                0.0,
+                0.0,
+                0.0),
+            [],
+            new ProjectOutputs(
+                outPath,
+                WriteCue: compactDisc,
+                DataDirectory: string.Empty,
+                VolumeLabel: bluRay ? "BD_IMAGE" : compactDisc ? "CD_IMAGE" : "DISC_IMAGE",
+                Interleave: compactDisc),
+            CalibrationSessionPath: null,
+            ThumbnailPngBase64: null,
+            now,
+            now,
+            Tone: ToneProfile.Photo,
+            BluRay: bluRay ? new ProjectBluRaySettings(false) : null);
+
+        _isApplyingProject = true;
+        try
+        {
+            CurrentProject = document;
+            ProjectFilePath = !string.IsNullOrWhiteSpace(savePath) ? Path.GetFullPath(savePath) : null;
+            IsProjectOpen = true;
+            IsDirty = false;
+            Design.SetDiscFamily(document.Family);
+            LivePreview.SetDiscType(document.Family, clearResult: true);
+            ProjectSession.ApplyToState(document, State);
+            Design.LoadLayers(document.Layers);
+        }
+        finally
+        {
+            _isApplyingProject = false;
+        }
+    }
+
+    public void SetSavedProject(string path, ProjectDocument document)
+    {
+        CurrentProject = document;
+        ProjectFilePath = Path.GetFullPath(path);
+        IsProjectOpen = true;
+        IsDirty = false;
+        _recentProjects.Record(new RecentProjectEntry(
+            document.Name,
+            document.DiscFamily,
+            ProjectFilePath,
+            document.ThumbnailPngBase64,
+            DateTimeOffset.Now));
+        Home.RefreshRecentProjects();
     }
 
     /// <summary>Home page template cards: opens the create dialog with a family/template
