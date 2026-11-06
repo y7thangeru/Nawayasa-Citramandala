@@ -21,7 +21,7 @@
                 <Button DockPanel.Dock="Right" Style="{StaticResource GhostButton}" Padding="10,6"
                         Command="{Binding ReturnHomeCommand}">
                     <StackPanel Orientation="Horizontal">
-                        <iconPacks:PackIconLucide Kind="Home" Width="16" Height="16" VerticalAlignment="Center" />
+                        <iconPacks:PackIconLucide Kind="House" Width="16" Height="16" VerticalAlignment="Center" />
                         <TextBlock Text="Home" Margin="6,0,0,0" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
@@ -348,7 +348,7 @@
                                         BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,14,0,0"
                                         Visibility="{Binding IsAudioCapacityExceeded, Converter={StaticResource BoolToVis}}">
                                     <StackPanel Orientation="Horizontal">
-                                        <iconPacks:PackIconLucide Kind="AlertTriangle" Width="20" Height="20" Foreground="{DynamicResource DangerBrush}" VerticalAlignment="Center" />
+                                        <iconPacks:PackIconLucide Kind="TriangleAlert" Width="20" Height="20" Foreground="{DynamicResource DangerBrush}" VerticalAlignment="Center" />
                                         <TextBlock Text="Audio duration exceeds standard 80-minute CD-R capacity! Please remove some tracks to enable burning."
                                                    Foreground="{DynamicResource DangerBrush}" FontWeight="SemiBold" Margin="10,0,0,0" VerticalAlignment="Center" />
                                     </StackPanel>
@@ -537,7 +537,7 @@
                         </controls:SectionCard>
 
                         <!-- Dithering & Tone -->
-                        <controls:SectionCard Header="Optical Tone &amp; Dithering" IconKind="Sliders" Margin="0,0,0,16">
+                        <controls:SectionCard Header="Optical Tone &amp; Dithering" IconKind="SlidersHorizontal" Margin="0,0,0,16">
                             <StackPanel>
                                 <TextBlock Text="Dither Algorithm:" Style="{StaticResource FieldLabel}" Margin="0,0,0,4" />
                                 <ComboBox ItemsSource="{Binding DitherOptions}" SelectedItem="{Binding SelectedDither}"
@@ -710,7 +710,7 @@
                 <!-- Finish Actions -->
                 <Border Style="{StaticResource CardStyle}" Padding="20" Margin="0,0,0,24">
                     <StackPanel HorizontalAlignment="Center">
-                        <iconPacks:PackIconLucide Kind="CheckCircle" Width="48" Height="48" Foreground="{DynamicResource SuccessBrush}"
+                        <iconPacks:PackIconLucide Kind="CircleCheck" Width="48" Height="48" Foreground="{DynamicResource SuccessBrush}"
                                                   HorizontalAlignment="Center" Margin="0,0,0,12" />
                         <TextBlock Text="Disc Creation Completed!" FontWeight="Bold" FontSize="18" HorizontalAlignment="Center" />
                         <TextBlock Text="Your optical disc design is saved and ready for production." Style="{StaticResource HintText}"

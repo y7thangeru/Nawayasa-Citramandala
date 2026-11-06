@@ -180,3 +180,10 @@ Aplikasi Desktop GUI modern untuk Nawayasa Citramandala DiscImageStudio, dibangu
 
 Mencakup 7 ruang kerja utama: Home, 4-Step Disc Wizard (dengan dukungan Audio CD + Visual Hybrid), Design Studio (multi-layer vector & raster), Live Readback Preview (dilengkapi simulator 3D Iridescence WebGL), Export Master, Streaming Burner (IMAPI2 dengan ring buffer 64 MB), dan Calibration Studio (dilengkapi Auto-Calibrate with AI/Vision otonom).
 ```
+
+
+### [2026-11-06 10:25:00 +07:00] - Perbaikan Fatal XamlParseException Lucide Icons & Penyediaan Executable di Root Folder
+- Action Type: [FIX] / [REFACTOR]
+- File Paths: MainWindow.xaml, HomeView.xaml, WizardView.xaml, NawayasaCitramandala.exe
+- Reasoning: Memperbaiki crash saat double-click akibat invalid Lucide icon name (Wand2 -> WandSparkles, Home -> House, AlertTriangle -> TriangleAlert, Sliders -> SlidersHorizontal, CheckCircle -> CircleCheck). Aplikasi terverifikasi berjalan sempurna dan biner mandiri 172 MB telah disalin langsung ke root direktori.
+```

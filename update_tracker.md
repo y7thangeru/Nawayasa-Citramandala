@@ -198,3 +198,28 @@ Dokumen ini mencatat setiap perubahan, penambahan, refaktor, dan perbaikan dalam
     6. Menambahkan proteksi kapasitas piringan dengan peringatan otomatis jika durasi lagu melebihi 80 menit.
     7. Menambahkan suite pengujian unit `CdAudioCapacityTests.cs` (18/18 pengujian unit lulus 100%).
     8. Membangun ulang file executable mandiri `publish/win-x64-standalone/NawayasaCitramandala.exe` (172 MB).
+
+
+### [2026-11-06 10:25:00 +07:00] - Perbaikan Fatal XamlParseException Lucide Icons (Wand2, Home, AlertTriangle, Sliders, CheckCircle)
+- **Action Type**: `[FIX]` / `[REFACTOR]`
+- **File Paths**:
+  - `src/NawayasaCitramandala.App/MainWindow.xaml` `[FIX]`
+  - `src/NawayasaCitramandala.App/Views/HomeView.xaml` `[FIX]`
+  - `src/NawayasaCitramandala.App/Views/WizardView.xaml` `[FIX]`
+  - `.gitignore` `[MODIFY]`
+  - `publish/win-x64-standalone/NawayasaCitramandala.exe` `[REFACTOR]`
+  - `NawayasaCitramandala.exe` `[NEW]`
+  - `update_tracker.md` `[MODIFY]`
+- **Reasoning**:
+  - Menginvestigasi laporan pengguna bahwa aplikasi tidak muncul saat di-double-click.
+  - Melalui audit Windows Application Event Log (`Application Error` & `.NET Runtime`), ditemukan crash fatal `XamlParseException`:
+    `System.FormatException: Wand2 is not a valid value for PackIconLucideKind.`
+  - Dilakukan pemindaian otomatis via skrip refleksi PowerShell terhadap seluruh file `.xaml` menggunakan `MahApps.Metro.IconPacks.Lucide.dll`, dan ditemukan 5 icon name yang tidak terdaftar pada enum:
+    1. `Wand2` -> diperbaiki menjadi `WandSparkles` di `MainWindow.xaml` dan `HomeView.xaml`.
+    2. `Home` -> diperbaiki menjadi `House` di `WizardView.xaml`.
+    3. `AlertTriangle` -> diperbaiki menjadi `TriangleAlert` di `WizardView.xaml`.
+    4. `Sliders` -> diperbaiki menjadi `SlidersHorizontal` di `WizardView.xaml`.
+    5. `CheckCircle` -> diperbaiki menjadi `CircleCheck` di `WizardView.xaml`.
+  - Memverifikasi ulang bahwa seluruh icon di semua file `.xaml` 100% valid tanpa satupun error enum.
+  - Mengompilasi dan menguji jalannya executable mandiri secara langsung (`STANDALONE EXE IS RUNNING FLAWLESSLY! PID: 46616`).
+  - Menyalin executable mandiri siap klik langsung ke folder root proyek `NawayasaCitramandala.exe` (172 MB).
