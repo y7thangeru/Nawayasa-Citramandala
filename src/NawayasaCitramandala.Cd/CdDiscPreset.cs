@@ -17,8 +17,8 @@ public sealed record CdDiscPreset(
 {
     public static CdDiscPreset Manual { get; } = new(
         "__manual__",
-        "自定义参数（未保存）",
-        "生成参数已在界面中手动调整；如需长期保存，请写入用户预设 JSON。",
+        "Manual Parameters (Unsaved)",
+        "Parameters manually adjusted in the interface; save to user preset JSON for permanent use.",
         359_849,
         24.5,
         56.8,

@@ -128,3 +128,47 @@ Dokumen ini mencatat setiap perubahan, penambahan, refaktor, dan perbaikan dalam
 - **Reasoning**:
   - Memperbaiki bug kritis di mana catalog JSON lokalisasi gagal dimuat karena perbedaan RootNamespace (`NawayasaCitramandala.App` vs `NawayasaCitramandala`), menyebabkan aplikasi menampilkan teks fallback Mandarin mentah.
   - Mengubah bahasa antarmuka default menjadi **Bahasa Inggris (English)** sesuai permintaan pengguna, dengan catalog JSON 100% lengkap dan terverifikasi unit test (15/15 passed).
+
+### [2026-11-06 09:47:00 +07:00] - Penambahan Milestone 5: Hybrid Media & Multi-Track Authoring
+- **Action Type**: `[MODIFY]`
+- **File Paths**:
+  - `Feature-ToBe-Implemented.md` `[MODIFY]`
+  - `update_tracker.md` `[MODIFY]`
+- **Reasoning**:
+  - Merespons permintaan pengguna untuk memasukkan kapabilitas penyimpanan berkas data (dokumen, MP3, installer) dan trek musik Audio CD (CD-DA) bersamaan dengan pembakaran gambar visual ke dalam roadmap fitur `Feature-ToBe-Implemented.md`.
+  - Menambahkan Milestone 5 dengan 4 fitur spesifik:
+    1. *Hybrid Radial Zone Master Allocation (ISO 9660 / Joliet / UDF + Visual Artwork)*
+    2. *Audio CD-DA & Mixed-Mode / Enhanced CD (CD-Extra / Blue Book) Master Engine*
+    3. *Interactive Radial Partition Manager & Capacity Calculator in Desktop GUI*
+    4. *CLI Hybrid Authoring Commands (`hybrid-cd` & `hybrid-iso`)*
+  - Memperbarui metrik progres proyek (Total Milestone: 6, Planned Features: 28, Planned/Queued: 4).
+
+
+### [2026-11-06 09:48:00 +07:00] - Implementasi 4-Step Easy Disc Wizard & Standardisasi Bahasa Inggris Penuh
+- **Action Type**: `[NEW]` / `[MODIFY]` / `[REFACTOR]`
+- **File Paths**:
+  - `src/NawayasaCitramandala.App/ViewModels/WizardViewModel.cs` `[NEW]`
+  - `src/NawayasaCitramandala.App/Views/WizardView.xaml` `[NEW]`
+  - `src/NawayasaCitramandala.App/Views/WizardView.xaml.cs` `[NEW]`
+  - `src/NawayasaCitramandala.App/ViewModels/Workspace.cs` `[MODIFY]`
+  - `src/NawayasaCitramandala.App/ViewModels/ShellViewModel.cs` `[MODIFY]`
+  - `src/NawayasaCitramandala.App/MainWindow.xaml` `[MODIFY]`
+  - `src/NawayasaCitramandala.App/MainWindow.xaml.cs` `[MODIFY]`
+  - `src/NawayasaCitramandala.App/Views/HomeView.xaml` `[MODIFY]`
+  - `src/NawayasaCitramandala.App/ViewModels/HomeViewModel.cs` `[MODIFY]`
+  - `src/NawayasaCitramandala.App/ViewModels/ProjectDialogViewModel.cs` `[MODIFY]`
+  - `src/NawayasaCitramandala.Core/Presets/built-in-disc-presets.json` `[MODIFY]`
+  - `src/NawayasaCitramandala.Core/DiscPresetJsonStore.cs` `[MODIFY]`
+  - `src/NawayasaCitramandala.Cd/CdDiscPreset.cs` `[MODIFY]`
+  - `src/NawayasaCitramandala.Dvd/DvdDiscPreset.cs` `[MODIFY]`
+  - `publish/win-x64-standalone/NawayasaCitramandala.exe` `[REFACTOR]`
+  - `publish/win-x64-portable/NawayasaCitramandala.exe` `[REFACTOR]`
+- **Reasoning**:
+  - Memenuhi permintaan pengguna untuk merampingkan seluruh alur aplikasi menjadi alur **Wizard 4 Langkah (4-Step Easy Wizard)**:
+    1. **Step 1: Load Image & Format**: Memilih format media (CD-R 700MB, DVD-R 4.7GB, BD-R 25GB) dan memilih file gambar (`.png`, `.jpg`, `.webp`, `.bmp`).
+    2. **Step 2: Position on Disc Layout**: Kanvas interaktif layout piringan CD/DVD/BD dengan visualisasi batas cetak fisik & hub lubang tengah. Dilengkapi kontrol slider Scale (%), Rotasi (°), Offset X/Y (mm), tombol preset cepat (Fit to Disc, Center, Reset Rotation), serta algoritma dither Blue Noise.
+    3. **Step 3: Finalize & Burn**: Ringkasan payload & sektor piringan, deteksi otomatis optical drive recorder via Windows IMAPI2, pemilihan kecepatan tulis (Write Speed), konfirmasi burn, dan progress streaming burn real-time.
+    4. **Step 4: Save Design Option**: Opsi menyimpan desain piringan ke dalam file proyek `.discproj` agar dapat dibuka kembali dan diburn di lain waktu, serta opsi ekspor master image ISO/WAV.
+  - Memperbaiki isu bahasa Mandarin: Menstandarisasi katalog bawaan `built-in-disc-presets.json`, `DiscPresetJsonStore`, dan fallback view model ke bahasa Inggris secara penuh (`en`).
+  - Menghubungkan Wizard ke navigasi Sidebar `NavWizard` dan menambahkan banner Hero Card di `HomeView.xaml` untuk akses instan satu klik.
+  - Membangun ulang file executable mandiri `publish/win-x64-standalone/NawayasaCitramandala.exe` (170 MB) dan portable `publish/win-x64-portable/NawayasaCitramandala.exe`.

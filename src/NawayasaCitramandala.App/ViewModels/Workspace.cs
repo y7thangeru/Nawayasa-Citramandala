@@ -1,10 +1,11 @@
 namespace NawayasaCitramandala.ViewModels;
 
-/// <summary>Pages hosted by the main window. Design through Burn form the project workflow.
-/// Calibration and its recording page are available independently from Home.</summary>
+/// <summary>Pages hosted by the main window. Wizard provides a streamlined 4-step flow.
+/// Design through Burn form the classic advanced workflow.</summary>
 public enum Workspace
 {
     Home,
+    Wizard,
     Design,
     Preview,
     Export,

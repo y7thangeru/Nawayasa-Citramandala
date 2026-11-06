@@ -1,4 +1,4 @@
-using NawayasaCitramandala.Localization;
+﻿using NawayasaCitramandala.Localization;
 using System.Globalization;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -47,7 +47,7 @@ public partial class ProjectDialogViewModel : ObservableObject
     /// per disc family. User-saved presets live inside their family's category.</summary>
     public const int RecentCategoryIndex = 0;
 
-    public IReadOnlyList<string> TemplateCategories { get; } = [L.T("最近"), "CD", "DVD", L.T("蓝光")];
+    public IReadOnlyList<string> TemplateCategories { get; } = [L.T("最近"), "CD", "DVD", "Blu-ray"];
 
     public ProjectDialogViewModel(DiscParametersState state, ProjectDialogRequest request)
         : this(state, request, new RecentTemplateStore(), string.Empty)
@@ -438,7 +438,7 @@ public partial class ProjectDialogViewModel : ObservableObject
         {
             templates.Add(new(
                 preset.Id,
-                preset.DisplayName,
+                L.T(preset.DisplayName),
                 L.F($"{preset.Sectors:N0} 扇区 · {preset.InnerRadiusMm:0.#}–{preset.OuterRadiusMm:0.#} mm"),
                 OpticalDiscFamily.CompactDisc,
                 preset.Contributor));
@@ -449,7 +449,7 @@ public partial class ProjectDialogViewModel : ObservableObject
         {
             templates.Add(new(
                 preset.Id,
-                preset.DisplayName,
+                L.T(preset.DisplayName),
                 L.F($"{preset.TotalSectors:N0} 扇区 · {preset.InnerRadiusMm:0.#}–{preset.OuterRadiusMm:0.#} mm"),
                 OpticalDiscFamily.Dvd,
                 preset.Contributor));
@@ -461,7 +461,7 @@ public partial class ProjectDialogViewModel : ObservableObject
             BluRayDiscParameters geometry = preset.CreateParameters();
             templates.Add(new(
                 preset.Id,
-                preset.DisplayName,
+                L.T(preset.DisplayName),
                 L.F($"{geometry.TotalSectors:N0} 扇区 · {geometry.InnerRadiusMm:0.#}–{geometry.OuterRadiusMm:0.#} mm")
                 + (preset.InvertMapping ? L.T(" · 反转 3T/6T") : string.Empty),
                 OpticalDiscFamily.BluRay,

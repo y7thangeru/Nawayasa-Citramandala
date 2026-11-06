@@ -1,4 +1,4 @@
-using NawayasaCitramandala.Localization;
+﻿using NawayasaCitramandala.Localization;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -172,13 +172,13 @@ public partial class HomeViewModel : ObservableObject
         string nature = family switch
         {
             OpticalDiscFamily.Dvd => "DVD",
-            OpticalDiscFamily.BluRay => L.T("蓝光"),
+            OpticalDiscFamily.BluRay => "Blu-ray",
             _ => "CD",
         };
 
         return new HomeTemplateTile(
             presetId,
-            StripQualifier(displayName),
+            L.T(StripQualifier(displayName)),
             nature,
             icon,
             family,

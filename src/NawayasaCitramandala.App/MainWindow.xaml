@@ -1,4 +1,4 @@
-<Window x:Class="NawayasaCitramandala.MainWindow"
+﻿<Window x:Class="NawayasaCitramandala.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:loc="clr-namespace:NawayasaCitramandala.Localization"
@@ -154,6 +154,7 @@
                                    Style="{StaticResource MicroText}"
                                    Foreground="{DynamicResource TextMutedBrush}"
                                    Margin="12,6,0,4" />
+                        <controls:SideNavItem x:Name="NavWizard" LabelText="Wizard" IconKind="Wand2" />
                         <controls:SideNavItem x:Name="NavDesign" LabelText="{loc:Text Xaml.Design}"
                                               IconKind="Palette" />
                         <controls:SideNavItem x:Name="NavExport" LabelText="{loc:Text Xaml.Export}"

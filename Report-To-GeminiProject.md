@@ -1,4 +1,4 @@
-# Laporan Konsolidasi Proyek: Nawayasa Citramandala (DiscImageStudio Spinoff)
+﻿# Laporan Konsolidasi Proyek: Nawayasa Citramandala (DiscImageStudio Spinoff)
 
 ---
 
@@ -91,10 +91,18 @@ Solusi lengkap **Nawayasa Citramandala** (`NawayasaCitramandala.sln`) mencakup 1
     - Aplikasi CLI terpadu: `autocalibrate`, `dither`, `target-generate`, `simulate-3d`, `cd-generate`, `solve`, dan `bd-generate`.
 11. **`NawayasaCitramandala.Tests`**:
     - Rangkaian pengujian unit xUnit dengan tingkat kelulusan 100% (14 passed, 0 failed).
-12. **`NawayasaCitramandala.App`**:
+12. **NawayasaCitramandala.App**:
     - Aplikasi Desktop GUI modern berbasis WPF (.NET 9.0-windows) dengan arsitektur MVVM (CommunityToolkit.Mvvm) dan Lucide Icons.
-    - Menghubungkan seluruh 6 alur kerja: Home, Design Studio, Live Readback Preview, Export Master, Streaming Burner (IMAPI2), dan Calibration Studio.
+    - **Streamlined 4-Step Disc Wizard (WizardView & WizardViewModel)**:
+      - Alur kerja 4 langkah ramah pengguna:
+        1. **Load Image & Select Format**: Memilih format piringan optik (CD-R 700MB, DVD-R 4.7GB, BD-R 25GB) dan memuat file gambar sumber (.png, .jpg, .webp, .bmp).
+        2. **Position on Disc Layout**: Kanvas interaktif tata letak piringan optik dengan visualisasi batas annulus cetak fisik, lubang spindle tengah, kontrol presisi (Scale %, Rotasi °, Offset X/Y mm), tombol preset cepat (Fit to Disc, Center, Reset Rotation), dan opsi dither Blue Noise.
+        3. **Finalize & Burn**: Ringkasan payload & sektor, deteksi otomatis optical recorder drive via Windows IMAPI2, kecepatan bakar, dan progress bar streaming burn real-time.
+        4. **Save Design Option**: Opsi menyimpan proyek desain (.discproj) agar dapat diburn kembali di kemudian hari, serta tombol ekspor master ISO/WAV.
+    - Menghubungkan seluruh ruang kerja: Home (dengan Hero Card Wizard), Wizard, Design Studio, Live Readback Preview, Export Master, Streaming Burner (IMAPI2), dan Calibration Studio.
     - Mengintegrasikan fitur unggulan spinoff: tombol **"Auto-Calibrate with AI/Vision"** (computer vision) dan tombol **"3D Iridescence (WebGL)"** (simulator difraksi Bragg Three.js).
+    - Standardisasi bahasa antarmuka penuh ke **English** (n) di seluruh katalog preset bawaan (uilt-in-disc-presets.json), dialog proyek, dan komponen sistem.
+    - Lokasi executable siap pakai: publish/win-x64-standalone/NawayasaCitramandala.exe (170 MB) dan publish/win-x64-portable/NawayasaCitramandala.exe.
 
 ---
 
@@ -133,17 +141,33 @@ Proyek ini memodulasi data biner, run-length coding (EFM, EFMPlus, 17PP), dan in
 - Action Type: [NEW] / [MODIFY]
 - File Paths: src/NawayasaCitramandala.App/*, LivePreviewViewModel.cs, CalibrationPhotoViewModel.cs, NawayasaCitramandala.sln
 - Reasoning: Implementasi Desktop GUI WPF (.NET 9.0-windows) modern dengan MVVM CommunityToolkit dan Lucide Icons. Mengintegrasikan tombol "Auto-Calibrate with AI/Vision" dan simulator difraksi pelangi 3D WebGL.
+
+### [2026-11-05 12:22:00 +07:00] - Pembuatan Executable Mandiri (Standalone & Portable .EXE)
+- Action Type: [NEW] / [MODIFY]
+- File Paths: publish/win-x64-standalone/NawayasaCitramandala.exe, publish/win-x64-portable/NawayasaCitramandala.exe, .gitignore
+- Reasoning: Menyediakan biner Windows mandiri single-file (.exe ~162 MB) siap klik ganda tanpa dependensi runtime eksternal.
+
+### [2026-11-05 12:35:00 +07:00] - Perbaikan Lokalisasi Default ke Bahasa Inggris & Resource Loader Bugfix
+- Action Type: [FIX] / [MODIFY]
+- File Paths: L.cs, AppSettings.cs, AppHost.cs, AppSettingsStore.cs, AdvancedSpinoffFeaturesTests.cs
+- Reasoning: Memperbaiki filtering path catalog JSON lokalisasi dan mengalihkan bahasa default aplikasi ke English (en) dengan verifikasi unit test 15/15 lulus.
+
+### [2026-11-06 09:47:00 +07:00] - Penambahan Milestone 5: Hybrid Media & Multi-Track Authoring
+- Action Type: [MODIFY]
+- File Paths: Feature-ToBe-Implemented.md, update_tracker.md
+- Reasoning: Menambahkan spesifikasi fitur penyimpanan data nyata (ISO/UDF) dan audio CD (CD-DA) bersamaan dengan pembakaran visual melalui alokasi partisi radial hibrida.
 ```
 
 ## Dokumen 3: Feature-ToBe-Implemented.md
 ```markdown
 # Feature-ToBe-Implemented: Nawayasa Citramandala (DiscImageStudio Spinoff)
-- Progress Metrics: 18 Completed, 0 In Progress, 6 Postponed/Omitted (~88% Completion, Desktop GUI Core 100%).
+- Progress Metrics: 18 Completed, 0 In Progress, 6 Postponed/Omitted, 4 Planned/Queued (Core Engine & Desktop GUI 100% Complete).
 - Milestone 0: Upstream Deep Audit & Foundational Architecture (Completed)
 - Milestone 1: Core Physics & Algorithmic Enhancements (Completed: Blue Noise, Dye Profiling, CIRC & RS-PC, Extended Media Specs)
 - Milestone 2: Smart Auto-Calibration with Computer Vision (Completed: Center/Edge Hough Detection, Pitch Regression, Universal Target Generator)
 - Milestone 3: Desktop GUI & Application Integration (Option 1 Complete: WPF .NET 9, AI Vision Auto-Calibrate, 3D WebGL Iridescence)
-- Milestone 4: Production Quality & Cloud / CI Verification (Completed: xUnit Test Suite 14/14, 3D Bragg Iridescence Simulation)
+- Milestone 4: Production Quality & Cloud / CI Verification (Completed: xUnit Test Suite 15/15, 3D Bragg Iridescence Simulation)
+- Milestone 5: Hybrid Media & Multi-Track Authoring (Planned: Hybrid Radial Zone ISO/UDF, Audio CD-DA Mixed-Mode / Enhanced CD, Interactive GUI Partition Manager, CLI Hybrid Commands)
 ```
 
 ## Dokumen 4: src/NawayasaCitramandala.App/README.md

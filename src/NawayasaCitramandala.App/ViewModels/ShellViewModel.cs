@@ -1,4 +1,4 @@
-using NawayasaCitramandala.Localization;
+﻿using NawayasaCitramandala.Localization;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -56,6 +56,7 @@ public partial class ShellViewModel : ObservableObject
         Burn = new BurnViewModel(this, State, Design, opticalDiscBurner);
         CalibrationBurn = new BurnViewModel(this, calibrationState, Design, opticalDiscBurner, useCalibrationPattern: true);
         Export = new ExportViewModel(this, State, Design);
+        Wizard = new WizardViewModel(this, State, Design, Burn);
         Design.CompositeRendered += Design_CompositeRendered;
         Design.DesignEdited += () => MarkProjectDirty();
         OpenOutputCommand = new RelayCommand(OpenOutput, () => OpenOutputEnabled);
@@ -83,6 +84,7 @@ public partial class ShellViewModel : ObservableObject
     public DesignViewModel Design { get; }
 
     public LivePreviewViewModel LivePreview { get; }
+    public WizardViewModel Wizard { get; }
 
     public HomeViewModel Home { get; }
 

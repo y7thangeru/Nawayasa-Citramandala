@@ -1,4 +1,4 @@
-using NawayasaCitramandala.Localization;
+﻿using NawayasaCitramandala.Localization;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -62,6 +62,7 @@ public partial class MainWindow : Window
         _pages =
         [
             new HomeView(_shell.Home),
+            new WizardView(_shell.Wizard),
             new DesignView(_shell.Design),
             new LivePreviewView(_shell.LivePreview),
             new ExportView(_shell.Export),
@@ -71,6 +72,7 @@ public partial class MainWindow : Window
         ];
         _navItems =
         [
+            (NavWizard, Workspace.Wizard),
             (NavDesign, Workspace.Design),
             (NavExport, Workspace.Export),
             (NavBurn, Workspace.Burn),

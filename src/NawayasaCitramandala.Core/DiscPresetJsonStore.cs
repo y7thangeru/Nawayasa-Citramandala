@@ -1,4 +1,4 @@
-using System.Text.Encodings.Web;
+﻿using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -125,8 +125,8 @@ public static class DiscPresetJsonStore
             [
                 new CdDiscPresetDefinition(
                     "user-custom-cd",
-                    "自定义 CD 参数",
-                    "用户预设，可直接修改或复制后添加更多 CD 参数。",
+                    "Custom CD Parameters",
+                    "User preset, adjust directly or duplicate to add more CD parameters.",
                     359_849,
                     24.5,
                     56.8,
@@ -135,8 +135,8 @@ public static class DiscPresetJsonStore
             [
                 new DvdDiscPresetDefinition(
                     "user-custom-dvd",
-                    "自定义 DVD 参数",
-                    "用户预设，可直接修改或复制后添加更多 DVD 参数。",
+                    "Custom DVD Parameters",
+                    "User preset, adjust directly or duplicate to add more DVD parameters.",
                     2_295_104,
                     24.0,
                     58.0,
@@ -148,8 +148,8 @@ public static class DiscPresetJsonStore
             [
                 new BluRayDiscPresetDefinition(
                     "user-custom-bd",
-                    "自定义蓝光参数",
-                    "用户预设，可直接修改或复制后添加更多蓝光参数。",
+                    "Custom Blu-ray Parameters",
+                    "User preset, adjust directly or duplicate to add more Blu-ray parameters.",
                     12_219_392,
                     24.0,
                     58.0),
