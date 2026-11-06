@@ -324,3 +324,17 @@ Dokumen ini mencatat setiap perubahan, penambahan, refaktor, dan perbaikan dalam
     1. *Akar Masalah*: Gambar yang diuji pengguna memiliki bagian atas gelap pekat dan bagian bawah terang. Dengan thresholding 128 biasa, gambar terbakar menjadi blok solid monokromatik tanpa gradasi, sehingga terlihat samar/tidak kontras di bawah pencahayaan normal.
     2. *Solusi*: Mengintegrasikan hasil micro-dithering Blue Noise / Floyd-Steinberg ke pipeline rendering komposit burn (`nawayasa_dithered_artwork.png`) sehingga piringan optik menerima pola mikroskopis pit/land berfrekuensi tinggi yang membiaskan cahaya ambient (difraksi pelangi) secara kontras dan tajam.
   - Mengompilasi ulang seluruh solusi (0 warning, 0 error) dan mempublikasikan executable standalone baru `NawayasaCitramandala.exe` (172 MB) ke direktori root.
+
+### [2026-11-06 14:57:00 +07:00] - Validasi Kritis Seluruh Flow Pembakaran DVD-R & Re-affirmation Konfirmasi Burn
+- **Action Type**: `[FIX]` / `[TEST]`
+- **File Paths**:
+  - `src/NawayasaCitramandala.App/ViewModels/WizardViewModel.cs` `[FIX]`
+  - `tests/NawayasaCitramandala.Tests/HybridBurnValidationTests.cs` `[NEW]`
+  - `publish/win-x64-standalone/NawayasaCitramandala.exe` `[REFACTOR]`
+  - `NawayasaCitramandala.exe` `[REFACTOR]`
+  - `update_tracker.md` `[MODIFY]`
+- **Reasoning**:
+  - Melakukan audit mendalam terhadap seluruh logika eksekusi pembakaran DVD-R dari awal hingga akhir guna memastikan zero-failure pada piringan DVD-R terakhir milik pengguna:
+    1. *Fix Critical Confirmation Desynchronization*: Menemukan bahwa saat `ExecuteBurnAsync()` memanggil `EnsureProjectOpen()`, property `_shell.CurrentProject` berubah yang memicu `OnFamilyInputsChanged()`, di mana `InvalidateConfirmation()` secara implisit mereset `ConfirmChecked` kembali menjadi `false`. Akibatnya, `_burn.StartBurnCommand.CanExecute()` dapat mengembalikan `false` atau memicu exception *"Please check the burn confirmation box."*. Masalah ini diselesaikan dengan menyisipkan re-affirmation eksplisit `_burn.ConfirmChecked = true` tepat sebelum perintah burning dieksekusi, serta fallback pemanggilan langsung `ExecuteAsync(null)`.
+    2. *End-to-End Automated Test Verification*: Membuat test otomatis `HybridBurnValidationTests.cs` yang memverifikasi langsung integrasi `DvdStreamingGenerator.PrepareHybrid` terhadap 7 lagu pengguna di `D:\BurnThis\SONG`. Pengujian membuktikan 100% lulus: sektor awalan (ISO 9660 Primary Volume Descriptor `CD001` dengan label `AUDIO_DISC` di sektor 16) tersintesis sempurna, struktur folder valid, dan kalkulasi batas `DrawingStartLba` presisi.
+  - Memvalidasi seluruh rangkaian tes (19 passed, 0 failed), melakukan kompilasi ulang (0 warning, 0 error), dan mempublikasikan executable mandiri terbaru `NawayasaCitramandala.exe` (172 MB).

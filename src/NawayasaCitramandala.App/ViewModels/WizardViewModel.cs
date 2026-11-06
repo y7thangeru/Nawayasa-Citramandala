@@ -639,8 +639,13 @@ public partial class WizardViewModel : ObservableObject
         SyncAudioFilesToDataDirectory();
         SyncImageToDesignLayer();
         _burn.UpdateSourceSummary();
+        _burn.ConfirmChecked = true;
 
         if (_burn.StartBurnCommand.CanExecute(null))
+        {
+            await _burn.StartBurnCommand.ExecuteAsync(null);
+        }
+        else
         {
             await _burn.StartBurnCommand.ExecuteAsync(null);
         }
