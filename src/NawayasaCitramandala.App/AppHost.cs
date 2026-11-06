@@ -1,3 +1,4 @@
+using System.IO;
 using System.Windows;
 using NawayasaCitramandala.Services;
 using NawayasaCitramandala.Localization;
@@ -8,14 +9,37 @@ internal static class AppHost
 {
     internal static int Run()
     {
-        AppSettingsStore store = new();
-        AppSettings settings = store.Load();
-        Application application = CreateApplication(ShutdownMode.OnMainWindowClose, settings.Theme, settings.Language);
-        // New jobs must honor the saved cache folder; previously written files keep their
-        // paths, which is why switching never migrates old cache.
-        TempFiles.TryConfigureCacheDirectory(settings.CacheDirectory);
-        MainWindow window = new(settings, store);
-        return application.Run(window);
+        string logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "startup.log");
+        try
+        {
+            File.WriteAllText(logPath, $"[1] Starting at {DateTime.Now}\n");
+            AppSettingsStore store = new();
+            AppSettings settings = store.Load();
+            File.AppendAllText(logPath, "[2] Settings loaded\n");
+            Application application = CreateApplication(ShutdownMode.OnMainWindowClose, settings.Theme, settings.Language);
+            File.AppendAllText(logPath, "[3] Application created\n");
+            application.DispatcherUnhandledException += (s, e) =>
+            {
+                File.AppendAllText(logPath, $"[DispatcherUnhandledException] {e.Exception}\n");
+            };
+            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+            {
+                File.AppendAllText(logPath, $"[AppDomain.UnhandledException] {e.ExceptionObject}\n");
+            };
+            TempFiles.TryConfigureCacheDirectory(settings.CacheDirectory);
+            File.AppendAllText(logPath, "[4] Creating MainWindow...\n");
+            MainWindow window = new(settings, store);
+            window.Loaded += (s, e) => { try { window.Activate(); window.Topmost = true; window.Topmost = false; window.Focus(); } catch { } };
+            File.AppendAllText(logPath, "[5] MainWindow created, calling application.Run(window)...\n");
+            int code = application.Run(window);
+            File.AppendAllText(logPath, $"[6] Application exited with code {code}\n");
+            return code;
+        }
+        catch (Exception ex)
+        {
+            File.AppendAllText(logPath, $"[FATAL STARTUP EXCEPTION] {ex}\n");
+            return 1;
+        }
     }
 
     /// <summary>Installs the design-token theme at the application scope so every window,

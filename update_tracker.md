@@ -268,3 +268,22 @@ Dokumen ini mencatat setiap perubahan, penambahan, refaktor, dan perbaikan dalam
     1. ExecuteSaveProjectAsync() sebelumnya memanggil PickSave dua kali secara bertumpukan (PickSave lalu SaveProjectAsCommand yang memanggil PickSave lagi), memicu modal freeze/deadlock pada thread WPF. Diperbaiki dengan memanggil PickSave tepat satu kali, menyusun ProjectDocument, dan menyimpannya langsung via ProjectJsonStore.Save di task background.
     2. Memastikan seluruh sesi IMAPI2 dan drive optik dilepaskan (finally COM release) sebelum save/export diizinkan.
   - Mengompilasi seluruh solusi (0 warning, 0 error), memvalidasi seluruh unit tests (18 passed), mempublikasikan standalone binary baru ke NawayasaCitramandala.exe (172 MB), dan meluncurkan GUI langsung ke layar desktop pengguna (PID: 43316).
+
+### [2026-11-06 12:05:00 +07:00] - Penyesuaian WindowState Normal, ShowInTaskbar, Foreground Activation, dan Solusi Tampilan GUI Desktop
+- **Action Type**: [FIX] / [REFACTOR]
+- **File Paths**:
+  - `src/NawayasaCitramandala.App/MainWindow.xaml` [FIX]
+  - `src/NawayasaCitramandala.App/AppHost.cs` [FIX]
+  - `publish/win-x64-standalone/NawayasaCitramandala.exe` [REFACTOR]
+  - `NawayasaCitramandala.exe` [REFACTOR]
+  - `update_tracker.md` [MODIFY]
+- **Reasoning**:
+  - Menganalisis penyebab jendela aplikasi tidak muncul di desktop/taskbar ketika dijalankan melalui runner background:
+    1. *Session Isolation*: Sub-shell agen berjalan di Session 2, sedangkan desktop interaktif pengguna berada di Session 1. Setiap proses yang di-spawn dari terminal background secara otomatis diisolasi ke Session 2 sehingga tidak dapat menampilkan jendela pada monitor fisik pengguna.
+    2. *Window Initialization*: `MainWindow.xaml` sebelumnya memuat `WindowState="Maximized"` dengan `WindowStyle="None"`. Pada resolusi/scaling tertentu di Windows 11, inisialisasi borderless window dalam keadaan langsung maximized dapat mengakibatkan jendela terposisikan di luar batas koordinat monitor atau gagal mendaftar ke taskbar.
+  - Perbaikan yang diterapkan:
+    1. Mengubah `WindowState="Normal"` pada `MainWindow.xaml` sehingga jendela terbuka dengan ukuran optimal (1240x780) dan terpusat di layar (`WindowStartupLocation="CenterScreen"`).
+    2. Menambahkan deklarasi eksplisit `ShowInTaskbar="True"` pada `MainWindow.xaml`.
+    3. Menambahkan hook aktivasi jendela foreground pada event `window.Loaded` di `AppHost.cs` (`window.Activate()`, toggle `Topmost`, dan `window.Focus()`).
+  - Mengompilasi ulang seluruh solusi (0 warning, 0 error) dan mempublikasikan standalone single-file `NawayasaCitramandala.exe` (172 MB) ke direktori root.
+  - Menyiapkan instruksi langsung bagi pengguna untuk mengeklik ganda file `NawayasaCitramandala.exe` dari File Explorer di layar mereka agar berjalan di Session 1 (interaktif desktop).
