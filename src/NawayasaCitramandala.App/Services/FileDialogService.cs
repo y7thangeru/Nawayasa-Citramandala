@@ -19,8 +19,8 @@ internal sealed class FileDialogService
     {
         OpenFileDialog dialog = new()
         {
-            Title = L.T("选择源图片"),
-            Filter = L.T("图片文件|*.png;*.jpg;*.jpeg;*.bmp;*.tif;*.tiff;*.gif|所有文件|*.*"),
+            Title = L.T("Select Source Artwork Image"),
+            Filter = L.T("Image Files|*.png;*.jpg;*.jpeg;*.bmp;*.tif;*.tiff;*.gif;*.webp|All Files|*.*"),
             CheckFileExists = true,
         };
         return dialog.ShowDialog(_ownerProvider()) == true ? dialog.FileName : null;
@@ -31,8 +31,21 @@ internal sealed class FileDialogService
     {
         OpenFileDialog dialog = new()
         {
-            Title = L.T("导入图片"),
-            Filter = L.T("图片文件|*.png;*.jpg;*.jpeg;*.bmp;*.tif;*.tiff;*.gif|所有文件|*.*"),
+            Title = L.T("Import Images"),
+            Filter = L.T("Image Files|*.png;*.jpg;*.jpeg;*.bmp;*.tif;*.tiff;*.gif;*.webp|All Files|*.*"),
+            CheckFileExists = true,
+            Multiselect = true,
+        };
+        return dialog.ShowDialog(_ownerProvider()) == true ? dialog.FileNames : null;
+    }
+
+    /// <summary>Multi-select audio picker for Red Book Audio CD tracks (MP3, FLAC, WAV, M4A, AAC).</summary>
+    internal string[]? PickAudioFiles()
+    {
+        OpenFileDialog dialog = new()
+        {
+            Title = L.T("Select Audio Tracks (MP3, FLAC, WAV, M4A)"),
+            Filter = L.T("Audio Files (*.mp3;*.flac;*.wav;*.m4a;*.aac)|*.mp3;*.flac;*.wav;*.m4a;*.aac|All Files (*.*)|*.*"),
             CheckFileExists = true,
             Multiselect = true,
         };
@@ -54,7 +67,7 @@ internal sealed class FileDialogService
     {
         SaveFileDialog dialog = new()
         {
-            Title = L.T("选择输出位置"),
+            Title = L.T("Select Output Location"),
             Filter = filter,
             DefaultExt = extension,
             AddExtension = true,

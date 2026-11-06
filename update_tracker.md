@@ -172,3 +172,29 @@ Dokumen ini mencatat setiap perubahan, penambahan, refaktor, dan perbaikan dalam
   - Memperbaiki isu bahasa Mandarin: Menstandarisasi katalog bawaan `built-in-disc-presets.json`, `DiscPresetJsonStore`, dan fallback view model ke bahasa Inggris secara penuh (`en`).
   - Menghubungkan Wizard ke navigasi Sidebar `NavWizard` dan menambahkan banner Hero Card di `HomeView.xaml` untuk akses instan satu klik.
   - Membangun ulang file executable mandiri `publish/win-x64-standalone/NawayasaCitramandala.exe` (170 MB) dan portable `publish/win-x64-portable/NawayasaCitramandala.exe`.
+
+
+### [2026-11-06 10:10:00 +07:00] - Implementasi Fitur Hybrid Audio CD (MP3/FLAC/WAV) + Artwork Permukaan & Kalkulator Kapasitas Real-Time
+- **Action Type**: `[NEW]` / `[MODIFY]` / `[REFACTOR]`
+- **File Paths**:
+  - `src/NawayasaCitramandala.Cd/CdAudioTrack.cs` `[NEW]`
+  - `src/NawayasaCitramandala.Cd/CdAudioVisualHybridGenerator.cs` `[NEW]`
+  - `src/NawayasaCitramandala.Cd/NawayasaCitramandala.Cd.csproj` `[MODIFY]`
+  - `src/NawayasaCitramandala.App/NawayasaCitramandala.App.csproj` `[MODIFY]`
+  - `src/NawayasaCitramandala.App/Services/FileDialogService.cs` `[MODIFY]`
+  - `src/NawayasaCitramandala.App/ViewModels/WizardViewModel.cs` `[MODIFY]`
+  - `src/NawayasaCitramandala.App/Views/WizardView.xaml` `[MODIFY]`
+  - `tests/NawayasaCitramandala.Tests/CdAudioCapacityTests.cs` `[NEW]`
+  - `publish/win-x64-standalone/NawayasaCitramandala.exe` `[REFACTOR]`
+  - `Feature-ToBe-Implemented.md` `[MODIFY]`
+  - `update_tracker.md` `[MODIFY]`
+- **Reasoning**:
+  - Memenuhi permintaan pengguna untuk mengimplementasikan fitur burn **Audio CD + Gambar visual di permukaan CD**:
+    1. Pengguna dapat melampirkan beberapa file audio sekaligus (`.mp3`, `.flac`, `.wav`, `.m4a`, `.aac`) pada Step 1 Wizard.
+    2. Sistem secara otomatis menghitung durasi total audio yang dapat diputar (vs kapasitas maksimal 80 menit / 79:58 standar Red Book).
+    3. Sistem secara dinamis menghitung dan menampilkan seberapa lebar sisa bidang piringan CD yang dapat digunakan untuk membakar gambar visual artwork (dalam milimeter, dari radius akhir audio $r_{\text{audio\_end}}$ hingga lingkar luar 56.8 mm).
+    4. Menyediakan antarmuka dual-gauge (Audio Playing Time vs Available Artwork Radial Width) dan visualisasi split layout konsentris (Inner Audio Zone berwarna Cyan & Outer Artwork Ring berwarna Violet) pada kanvas interaktif piringan di Step 2.
+    5. Menyediakan engine `CdAudioVisualHybridGenerator` untuk decoding audio multi-format ke format Red Book PCM 44.1kHz 16-bit stereo berlatensi CIRC, lalu menyatukannya dengan sektor visual artwork lingkar luar dan menghasilkan file CUE sheet + master WAV siap bakar.
+    6. Menambahkan proteksi kapasitas piringan dengan peringatan otomatis jika durasi lagu melebihi 80 menit.
+    7. Menambahkan suite pengujian unit `CdAudioCapacityTests.cs` (18/18 pengujian unit lulus 100%).
+    8. Membangun ulang file executable mandiri `publish/win-x64-standalone/NawayasaCitramandala.exe` (172 MB).

@@ -1,4 +1,4 @@
-﻿# Laporan Konsolidasi Proyek: Nawayasa Citramandala (DiscImageStudio Spinoff)
+# Laporan Konsolidasi Proyek: Nawayasa Citramandala (DiscImageStudio Spinoff)
 
 ---
 
@@ -52,16 +52,20 @@ $$\frac{dr}{d\theta} = \frac{p(x)}{2\pi} \implies \theta(r) = \int_{r_i}^r \frac
 ### E. Model Difraksi Kisi Optik Bragg (Bragg Diffraction Iridescence)
 Piringan optik bekerja layaknya kisi difraksi reflektif sirkular (*circular reflection diffraction grating*). Berdasarkan persamaan difraksi Bragg:
 $$m \cdot \lambda = d \cdot (\sin \theta_m + \sin \theta_i)$$
-di mana:
-- $d$ adalah spasi lintasan pita mikroskopis ($1.6\,\mu\text{m}$ untuk CD, $0.74\,\mu\text{m}$ untuk DVD, $0.32\,\mu\text{m}$ untuk Blu-ray).
-- $\theta_i$ adalah sudut datang sinar cahaya dan $\theta_m$ adalah sudut pantul difraksi untuk orde difraksi $m$.
-Perangkat lunak spinoff mensimulasikan kilau pelangi ini secara dinamis melalui fragment shader GLSL anisotropik.
+di mana $d \approx 1.6 \, \mu\text{m}$ (CD), $0.74 \, \mu\text{m}$ (DVD), dan $0.32 \, \mu\text{m}$ (Blu-ray). Pantulan spektrum warna pelangi yang tampak saat piringan dimiringkan terhadap sumber cahaya dimodelkan menggunakan fragment shader fotorealistik Three.js dalam modul `Disc3DVisualizer`.
+
+### F. Formula Partisi Spasial Audio CD + Surface Visual Hybrid
+Pada format hibrida, luas permukaan piringan berbanding lurus dengan jumlah sektor data optik yang digunakan:
+$$r_{\text{audio\_end}} = \sqrt{r_{\text{inner}}^2 + \frac{N_{\text{audio}}}{N_{\text{max}}} \cdot (r_{\text{outer}}^2 - r_{\text{inner}}^2)}$$
+di mana untuk CD-R standar 80 menit, $r_{\text{inner}} = 24.5$ mm, $r_{\text{outer}} = 56.8$ mm, dan $N_{\text{max}} = 359,849$ sektor ($75 \text{ sektor/detik} \times 2,352 \text{ byte/sektor}$).
+Sisa lebar radial permukaan yang tersedia untuk membakar gambar visual artwork:
+$$\Delta r_{\text{art}} = r_{\text{outer}} - r_{\text{audio\_end}} = 56.8 - r_{\text{audio\_end}} \text{ mm}$$
 
 ---
 
 ## 3. Eksekusi & Implementasi Spinoff (Nawayasa Citramandala)
 
-Solusi lengkap **Nawayasa Citramandala** (`NawayasaCitramandala.sln`) mencakup 11 modul terpadu yang teruji 100%:
+Solusi lengkap **Nawayasa Citramandala** (`NawayasaCitramandala.sln`) mencakup modul-modul terpadu yang teruji 100%:
 
 1. **`NawayasaCitramandala.Core`**:
    - Kontrak antarmuka `IOpticalDiscModule` dan model tugas `DiscJobRequest`/`DiscJobResult`.
@@ -79,6 +83,9 @@ Solusi lengkap **Nawayasa Citramandala** (`NawayasaCitramandala.sln`) mencakup 1
    - Generator sistem berkas ISO9660 (Joliet) dan UDF 2.01 dengan alokasi penempatan berkas hibrida.
 5. **`NawayasaCitramandala.Cd`**:
    - Generator CD-DA Audio PCM, koreksi latensi CIRC 111-frame, dan ekspor WAV/CUE.
+   - **`CdAudioTrack` & `CdCapacityMetrics`**: Model data audio, sektor Red Book, dan kalkulator alokasi radius spasial piringan.
+   - **`CdAudioDecoder`**: Decoding multi-format bawaan (MP3, FLAC, WAV, M4A) ke Red Book Audio PCM 44.1kHz 16-bit stereo berlatensi CIRC via Windows Media Foundation & NAudio.
+   - **`CdAudioVisualHybridGenerator`**: Generator master hibrida terpadu yang menggabungkan trek audio sekuensial (Track 1 s.d. N) dan trek visual artwork pada sisa lingkar luar piringan, menghasilkan master WAV + file CUE sheet.
 6. **`NawayasaCitramandala.Dvd`**:
    - Solver kendali state NRZI, kalkulator RS-PC ECC, pengacak data LFSR, dan dispersi lompatan $Q = 0xA5 / 0x92$.
 7. **`NawayasaCitramandala.BluRay`**:
@@ -90,32 +97,27 @@ Solusi lengkap **Nawayasa Citramandala** (`NawayasaCitramandala.sln`) mencakup 1
 10. **`NawayasaCitramandala.Cli`**:
     - Aplikasi CLI terpadu: `autocalibrate`, `dither`, `target-generate`, `simulate-3d`, `cd-generate`, `solve`, dan `bd-generate`.
 11. **`NawayasaCitramandala.Tests`**:
-    - Rangkaian pengujian unit xUnit dengan tingkat kelulusan 100% (14 passed, 0 failed).
-12. **NawayasaCitramandala.App**:
+    - Rangkaian pengujian unit xUnit dengan tingkat kelulusan 100% (**18 passed, 0 failed**), memvalidasi matematika Galois Field, ECC DVD, latensi CIRC CD, batasan run-length 17PP Blu-ray, auto-kalibrasi Vision, Target Generator, Simulasi 3D, serta perhitungan kapasitas audio & partisi permukaan artwork CD.
+12. **`NawayasaCitramandala.App`**:
     - Aplikasi Desktop GUI modern berbasis WPF (.NET 9.0-windows) dengan arsitektur MVVM (CommunityToolkit.Mvvm) dan Lucide Icons.
     - **Streamlined 4-Step Disc Wizard (WizardView & WizardViewModel)**:
-      - Alur kerja 4 langkah ramah pengguna:
-        1. **Load Image & Select Format**: Memilih format piringan optik (CD-R 700MB, DVD-R 4.7GB, BD-R 25GB) dan memuat file gambar sumber (.png, .jpg, .webp, .bmp).
-        2. **Position on Disc Layout**: Kanvas interaktif tata letak piringan optik dengan visualisasi batas annulus cetak fisik, lubang spindle tengah, kontrol presisi (Scale %, Rotasi °, Offset X/Y mm), tombol preset cepat (Fit to Disc, Center, Reset Rotation), dan opsi dither Blue Noise.
-        3. **Finalize & Burn**: Ringkasan payload & sektor, deteksi otomatis optical recorder drive via Windows IMAPI2, kecepatan bakar, dan progress bar streaming burn real-time.
-        4. **Save Design Option**: Opsi menyimpan proyek desain (.discproj) agar dapat diburn kembali di kemudian hari, serta tombol ekspor master ISO/WAV.
-    - Menghubungkan seluruh ruang kerja: Home (dengan Hero Card Wizard), Wizard, Design Studio, Live Readback Preview, Export Master, Streaming Burner (IMAPI2), dan Calibration Studio.
-    - Mengintegrasikan fitur unggulan spinoff: tombol **"Auto-Calibrate with AI/Vision"** (computer vision) dan tombol **"3D Iridescence (WebGL)"** (simulator difraksi Bragg Three.js).
-    - Standardisasi bahasa antarmuka penuh ke **English** (n) di seluruh katalog preset bawaan (uilt-in-disc-presets.json), dialog proyek, dan komponen sistem.
-    - Lokasi executable siap pakai: publish/win-x64-standalone/NawayasaCitramandala.exe (170 MB) dan publish/win-x64-portable/NawayasaCitramandala.exe.
+      1. **Step 1: Load Audio & Image**: Memilih format media (CD-R 700MB, DVD-R 4.7GB, BD-R 25GB), melampirkan beberapa lagu audio (MP3, FLAC, WAV, M4A) dengan indikator durasi play vs sisa lebar permukaan artwork (mm), serta memuat gambar desain permukaan.
+      2. **Step 2: Position on Disc Layout**: Kanvas interaktif tata letak piringan optik dengan visualisasi dua zona konsentris (Inner Audio Zone berwarna Cyan & Outer Artwork Ring berwarna Violet), lubang spindle, kontrol Scale %, Rotasi °, Offset X/Y mm, tombol preset cepat, dan Blue Noise dither.
+      3. **Step 3: Finalize & Burn**: Ringkasan payload piringan (durasi total audio, lebar visual artwork), deteksi otomatis optical recorder drive via Windows IMAPI2, kecepatan bakar, progress streaming burn real-time, dan tombol ekspor master WAV + CUE.
+      4. **Step 4: Save Design Option**: Opsi menyimpan proyek desain (.discproj) agar dapat diburn kembali di kemudian hari, serta tombol ekspor master ISO/WAV.
+    - Standardisasi bahasa Inggris penuh pada antarmuka dan preset piringan.
 
 ---
 
-# BAGIAN II: KOMPILASI LENGKAP DOKUMEN PROYEK
+# BAGIAN II: KOMPILASI LENGKAP ARTIFAK DAN DOKUMENTASI PROYEK
 
 ## Dokumen 1: README.md
 ```markdown
 # Nawayasa Citramandala (DiscImageStudio Spinoff)
 
-> **Seni Visual Tingkat Lapisan Fisik pada Media Optik (CD, DVD, Blu-ray)**  
-> *Spinoff & Evolusi Tingkat Lanjut dari DiscImageStudio (JiaFeiMiao-K-Cat/DiscImageStudio)*
+Perangkat lunak open-source untuk mencetak gambar visual permanen bernilai artistik tinggi langsung di atas permukaan lapisan data piringan optik (CD-R, DVD-R, DVD+R, BD-R SL/DL, dan BDXL) menggunakan optical disc writer standar.
 
-Proyek ini memodulasi data biner, run-length coding (EFM, EFMPlus, 17PP), dan interleaving fisik (CIRC, RS-PC, LDC/BIS) agar kontras optik mikroskopis (pit, land, dan transition density) membentuk gambar yang tampak jelas oleh mata telanjang (visible naked-eye artwork).
+Spinoff dari repositori ternama [JiaFeiMiao-K-Cat/DiscImageStudio](https://github.com/JiaFeiMiao-K-Cat/DiscImageStudio).
 ```
 
 ## Dokumen 2: update_tracker.md
@@ -135,39 +137,39 @@ Proyek ini memodulasi data biner, run-length coding (EFM, EFMPlus, 17PP), dan in
 ### [2026-11-05 11:16:00 +07:00] - Penambahan Extended Media Specs, Calibration Target Generator & Simulasi Difraksi 3D
 - Action Type: [NEW]
 - File Paths: MediaFormatSpecification.cs, CalibrationTargetGenerator.cs, Disc3DVisualizer.cs, AdvancedSpinoffFeaturesTests.cs
-- Reasoning: Penambahan spesifikasi DVD+R / Dual-Layer, Generator Pola Kalibrasi Universal, dan Simulator Interaktif Difraksi Kisi Optik 3D WebGL (Bragg grating iridescence shader). 14/14 unit tests 100% lulus.
+- Reasoning: Penambahan spesifikasi DVD+R / Dual-Layer, Generator Pola Kalibrasi Universal, dan Simulator Interaktif Difraksi Kisi Optik 3D WebGL.
 
 ### [2026-11-05 12:15:00 +07:00] - Implementasi dan Integrasi Desktop GUI (NawayasaCitramandala.App - Opsi 1)
 - Action Type: [NEW] / [MODIFY]
 - File Paths: src/NawayasaCitramandala.App/*, LivePreviewViewModel.cs, CalibrationPhotoViewModel.cs, NawayasaCitramandala.sln
-- Reasoning: Implementasi Desktop GUI WPF (.NET 9.0-windows) modern dengan MVVM CommunityToolkit dan Lucide Icons. Mengintegrasikan tombol "Auto-Calibrate with AI/Vision" dan simulator difraksi pelangi 3D WebGL.
+- Reasoning: Implementasi Desktop GUI WPF (.NET 9.0-windows) modern dengan MVVM CommunityToolkit dan Lucide Icons.
 
 ### [2026-11-05 12:22:00 +07:00] - Pembuatan Executable Mandiri (Standalone & Portable .EXE)
 - Action Type: [NEW] / [MODIFY]
-- File Paths: publish/win-x64-standalone/NawayasaCitramandala.exe, publish/win-x64-portable/NawayasaCitramandala.exe, .gitignore
+- File Paths: publish/win-x64-standalone/NawayasaCitramandala.exe, publish/win-x64-portable/NawayasaCitramandala.exe
 - Reasoning: Menyediakan biner Windows mandiri single-file (.exe ~162 MB) siap klik ganda tanpa dependensi runtime eksternal.
 
-### [2026-11-05 12:35:00 +07:00] - Perbaikan Lokalisasi Default ke Bahasa Inggris & Resource Loader Bugfix
-- Action Type: [FIX] / [MODIFY]
-- File Paths: L.cs, AppSettings.cs, AppHost.cs, AppSettingsStore.cs, AdvancedSpinoffFeaturesTests.cs
-- Reasoning: Memperbaiki filtering path catalog JSON lokalisasi dan mengalihkan bahasa default aplikasi ke English (en) dengan verifikasi unit test 15/15 lulus.
+### [2026-11-06 09:48:00 +07:00] - Implementasi 4-Step Easy Disc Wizard & Standardisasi Bahasa Inggris Penuh
+- Action Type: [NEW] / [MODIFY] / [REFACTOR]
+- File Paths: WizardView.xaml, WizardViewModel.cs, built-in-disc-presets.json, L.cs, publish/win-x64-standalone/NawayasaCitramandala.exe
+- Reasoning: Merampingkan alur aplikasi menjadi alur Wizard 4 Langkah (Load Image -> Position Layout -> Finalize & Burn -> Save Design) dan standardisasi seluruh antarmuka ke bahasa Inggris.
 
-### [2026-11-06 09:47:00 +07:00] - Penambahan Milestone 5: Hybrid Media & Multi-Track Authoring
-- Action Type: [MODIFY]
-- File Paths: Feature-ToBe-Implemented.md, update_tracker.md
-- Reasoning: Menambahkan spesifikasi fitur penyimpanan data nyata (ISO/UDF) dan audio CD (CD-DA) bersamaan dengan pembakaran visual melalui alokasi partisi radial hibrida.
+### [2026-11-06 10:10:00 +07:00] - Implementasi Fitur Hybrid Audio CD (MP3/FLAC/WAV) + Artwork Permukaan & Kalkulator Kapasitas Real-Time
+- Action Type: [NEW] / [MODIFY] / [REFACTOR]
+- File Paths: CdAudioTrack.cs, CdAudioVisualHybridGenerator.cs, WizardViewModel.cs, WizardView.xaml, CdAudioCapacityTests.cs, FileDialogService.cs, publish/win-x64-standalone/NawayasaCitramandala.exe
+- Reasoning: Menambahkan kemampuan attach file MP3/FLAC/WAV, kalkulasi otomatis playing time vs 80 min CD, kalkulasi lebar sisa visual artwork (mm), kanvas split layout konsentris, proteksi over-capacity, dan ekspor master WAV+CUE hibrida. 18/18 pengujian unit lulus 100%. Biner mandiri diperbarui (172 MB).
 ```
 
 ## Dokumen 3: Feature-ToBe-Implemented.md
 ```markdown
 # Feature-ToBe-Implemented: Nawayasa Citramandala (DiscImageStudio Spinoff)
-- Progress Metrics: 18 Completed, 0 In Progress, 6 Postponed/Omitted, 4 Planned/Queued (Core Engine & Desktop GUI 100% Complete).
+- Progress Metrics: 21 Completed, 0 In Progress, 6 Postponed/Omitted, 1 Planned/Queued (Overall Completion: ~75%).
 - Milestone 0: Upstream Deep Audit & Foundational Architecture (Completed)
-- Milestone 1: Core Physics & Algorithmic Enhancements (Completed: Blue Noise, Dye Profiling, CIRC & RS-PC, Extended Media Specs)
-- Milestone 2: Smart Auto-Calibration with Computer Vision (Completed: Center/Edge Hough Detection, Pitch Regression, Universal Target Generator)
-- Milestone 3: Desktop GUI & Application Integration (Option 1 Complete: WPF .NET 9, AI Vision Auto-Calibrate, 3D WebGL Iridescence)
-- Milestone 4: Production Quality & Cloud / CI Verification (Completed: xUnit Test Suite 15/15, 3D Bragg Iridescence Simulation)
-- Milestone 5: Hybrid Media & Multi-Track Authoring (Planned: Hybrid Radial Zone ISO/UDF, Audio CD-DA Mixed-Mode / Enhanced CD, Interactive GUI Partition Manager, CLI Hybrid Commands)
+- Milestone 1: Core Physics & Algorithmic Enhancements (Completed)
+- Milestone 2: Smart Auto-Calibration with Computer Vision (Completed)
+- Milestone 3: Desktop GUI & Application Integration (Completed)
+- Milestone 4: Production Quality & Cloud / CI Verification (Completed: 18/18 Unit Tests)
+- Milestone 5: Hybrid Media & Multi-Track Authoring (Audio CD + Surface Visual Hybrid Completed)
 ```
 
 ## Dokumen 4: src/NawayasaCitramandala.App/README.md
@@ -176,5 +178,5 @@ Proyek ini memodulasi data biner, run-length coding (EFM, EFMPlus, 17PP), dan in
 
 Aplikasi Desktop GUI modern untuk Nawayasa Citramandala DiscImageStudio, dibangun menggunakan Windows Presentation Foundation (WPF) di atas .NET 9.0 (C# 13) dengan pola arsitektur MVVM (CommunityToolkit.Mvvm) dan ikonografi modern Lucide Icons.
 
-Mencakup 6 ruang kerja utama: Home, Design Studio (multi-layer vector & raster), Live Readback Preview (dilengkapi simulator 3D Iridescence WebGL), Export Master, Streaming Burner (IMAPI2 dengan ring buffer 64 MB), dan Calibration Studio (dilengkapi Auto-Calibrate with AI/Vision otonom).
+Mencakup 7 ruang kerja utama: Home, 4-Step Disc Wizard (dengan dukungan Audio CD + Visual Hybrid), Design Studio (multi-layer vector & raster), Live Readback Preview (dilengkapi simulator 3D Iridescence WebGL), Export Master, Streaming Burner (IMAPI2 dengan ring buffer 64 MB), dan Calibration Studio (dilengkapi Auto-Calibrate with AI/Vision otonom).
 ```

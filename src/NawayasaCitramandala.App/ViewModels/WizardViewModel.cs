@@ -32,7 +32,7 @@ public partial class WizardViewModel : ObservableObject
     private WizardStep _currentStep = WizardStep.LoadImage;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsCd), nameof(IsDvd), nameof(IsBluRay), nameof(FormatName), nameof(OuterRadiusMm), nameof(InnerRadiusMm))]
+    [NotifyPropertyChangedFor(nameof(IsCd), nameof(IsDvd), nameof(IsBluRay), nameof(FormatName), nameof(OuterRadiusMm), nameof(InnerRadiusMm), nameof(ArtworkStartRadiusMm), nameof(ArtworkRadialWidthMm))]
     private OpticalDiscFamily _selectedFormat = OpticalDiscFamily.CompactDisc;
 
     public bool IsCd => SelectedFormat == OpticalDiscFamily.CompactDisc;
@@ -60,6 +60,46 @@ public partial class WizardViewModel : ObservableObject
         _ => 56.8,
     };
 
+    // ---- Audio CD Tracks & Live Capacity Metrics ----
+    public ObservableCollection<CdAudioTrack> AudioTracks { get; } = [];
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasAudioTracks), nameof(AudioTotalDurationText), nameof(AudioRemainingDurationText),
+        nameof(ArtworkRadialWidthText), nameof(AudioUsagePercent), nameof(ArtworkUsagePercent),
+        nameof(IsAudioCapacityExceeded), nameof(AudioEndRadiusMm), nameof(ArtworkStartRadiusMm),
+        nameof(ArtworkRadialWidthMm), nameof(AudioZoneDiameterPx), nameof(ArtworkInnerRingDiameterPx))]
+    private CdCapacityMetrics? _capacityMetrics;
+
+    public bool HasAudioTracks => AudioTracks.Count > 0;
+
+    public string AudioTotalDurationText => CapacityMetrics != null
+        ? $"{CapacityMetrics.TotalAudioDuration.TotalMinutes:F1} min ({(int)CapacityMetrics.TotalAudioDuration.TotalMinutes:D2}:{CapacityMetrics.TotalAudioDuration.Seconds:D2} / 79:58)"
+        : "00:00 / 79:58 (0.0 min)";
+
+    public string AudioRemainingDurationText => CapacityMetrics != null
+        ? $"{(int)CapacityMetrics.RemainingAudioDuration.TotalMinutes:D2}:{CapacityMetrics.RemainingAudioDuration.Seconds:D2} remaining ({CapacityMetrics.RemainingAudioDuration.TotalMinutes:F1} min)"
+        : "79:58 remaining (80.0 min)";
+
+    public string ArtworkRadialWidthText => CapacityMetrics != null
+        ? $"{CapacityMetrics.ArtworkRadialWidthMm:F1} mm ({CapacityMetrics.ArtworkStartRadiusMm:F1} to {CapacityMetrics.ArtworkEndRadiusMm:F1} mm)"
+        : $"{OuterRadiusMm - InnerRadiusMm:F1} mm ({InnerRadiusMm:F1} to {OuterRadiusMm:F1} mm)";
+
+    public double AudioUsagePercent => CapacityMetrics?.AudioDiscPercentage ?? 0.0;
+    public double ArtworkUsagePercent => CapacityMetrics?.ArtworkDiscPercentage ?? 100.0;
+    public bool IsAudioCapacityExceeded => CapacityMetrics?.ExceedsCapacity ?? false;
+
+    public double AudioEndRadiusMm => CapacityMetrics?.AudioEndRadiusMm ?? InnerRadiusMm;
+    public double ArtworkStartRadiusMm => CapacityMetrics?.ArtworkStartRadiusMm ?? InnerRadiusMm;
+    public double ArtworkRadialWidthMm => CapacityMetrics?.ArtworkRadialWidthMm ?? (OuterRadiusMm - InnerRadiusMm);
+
+    // Canvas scaling: 120 mm outer disc is 420 px diameter on preview canvas => factor = 3.5 px/mm
+    public double AudioZoneDiameterPx => Math.Max(0.0, AudioEndRadiusMm * 2.0 * 3.5);
+    public double ArtworkInnerRingDiameterPx => Math.Max(0.0, ArtworkStartRadiusMm * 2.0 * 3.5);
+
+    [ObservableProperty]
+    private string _audioSummaryText = "No audio tracks attached (Full disc surface available for visual artwork)";
+
+    // ---- Image Artwork Properties ----
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasImage), nameof(CanProceedToStep2))]
     private string? _imagePath;
@@ -138,6 +178,12 @@ public partial class WizardViewModel : ObservableObject
 
     // ---- Commands ----
     public IRelayCommand LoadImageCommand { get; }
+    public IRelayCommand AddAudioFilesCommand { get; }
+    public IRelayCommand<CdAudioTrack> RemoveAudioTrackCommand { get; }
+    public IRelayCommand ClearAudioTracksCommand { get; }
+    public IRelayCommand<CdAudioTrack> MoveTrackUpCommand { get; }
+    public IRelayCommand<CdAudioTrack> MoveTrackDownCommand { get; }
+
     public IRelayCommand NextStepCommand { get; }
     public IRelayCommand PrevStepCommand { get; }
     public IRelayCommand GoToStepCommand { get; }
@@ -149,6 +195,7 @@ public partial class WizardViewModel : ObservableObject
     public IRelayCommand CancelBurnCommand { get; }
     public IAsyncRelayCommand SaveProjectCommand { get; }
     public IAsyncRelayCommand ExportMasterCommand { get; }
+    public IAsyncRelayCommand GenerateHybridMasterCommand { get; }
     public IRelayCommand ResetWizardCommand { get; }
     public IRelayCommand ReturnHomeCommand { get; }
 
@@ -160,6 +207,12 @@ public partial class WizardViewModel : ObservableObject
         _burn = burn;
 
         LoadImageCommand = new RelayCommand(BrowseAndLoadImage);
+        AddAudioFilesCommand = new RelayCommand(BrowseAndAddAudioFiles);
+        RemoveAudioTrackCommand = new RelayCommand<CdAudioTrack>(RemoveAudioTrack);
+        ClearAudioTracksCommand = new RelayCommand(ClearAudioTracks);
+        MoveTrackUpCommand = new RelayCommand<CdAudioTrack>(MoveTrackUp);
+        MoveTrackDownCommand = new RelayCommand<CdAudioTrack>(MoveTrackDown);
+
         NextStepCommand = new RelayCommand(ExecuteNextStep, CanExecuteNextStep);
         PrevStepCommand = new RelayCommand(ExecutePrevStep, CanExecutePrevStep);
         GoToStepCommand = new RelayCommand<int>(step => SetStep((WizardStep)step));
@@ -167,14 +220,16 @@ public partial class WizardViewModel : ObservableObject
         CenterImageCommand = new RelayCommand(() => { TranslateXMm = 0; TranslateYMm = 0; SyncLayoutToLayer(); });
         ResetRotationCommand = new RelayCommand(() => { RotationDeg = 0; SyncLayoutToLayer(); });
         RefreshDevicesCommand = new RelayCommand(() => _burn.RefreshDevicesCommand.Execute(null));
-        StartBurnCommand = new AsyncRelayCommand(ExecuteBurnAsync, () => ConfirmBurnChecked && SelectedDevice is not null && !IsBurning);
+        StartBurnCommand = new AsyncRelayCommand(ExecuteBurnAsync, () => ConfirmBurnChecked && SelectedDevice is not null && !IsBurning && !IsAudioCapacityExceeded);
         CancelBurnCommand = new RelayCommand(() => _burn.CancelBurnCommand.Execute(null));
         SaveProjectCommand = new AsyncRelayCommand(ExecuteSaveProjectAsync);
         ExportMasterCommand = new AsyncRelayCommand(ExecuteExportMasterAsync);
+        GenerateHybridMasterCommand = new AsyncRelayCommand(ExecuteGenerateHybridMasterAsync);
         ResetWizardCommand = new RelayCommand(ResetWizard);
         ReturnHomeCommand = new RelayCommand(() => _shell.NavigateTo(Workspace.Home));
 
         _burn.PropertyChanged += Burn_PropertyChanged;
+        RecalculateCapacity();
     }
 
     private void Burn_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -195,6 +250,112 @@ public partial class WizardViewModel : ObservableObject
         }
     }
 
+    // ---- Audio Tracks Management ----
+    public void BrowseAndAddAudioFiles()
+    {
+        string[]? files = _shell.Dialogs?.PickAudioFiles();
+        if (files is null || files.Length == 0) return;
+
+        List<string> addedTitles = [];
+        foreach (string file in files)
+        {
+            try
+            {
+                CdAudioTrack track = CdAudioDecoder.AnalyzeTrack(file, AudioTracks.Count + 1);
+                AudioTracks.Add(track);
+                addedTitles.Add(track.Title);
+            }
+            catch (Exception ex)
+            {
+                _shell.ShowToast("Audio Read Error", $"Could not read {Path.GetFileName(file)}: {ex.Message}", ToastKind.Warning);
+            }
+        }
+
+        RenumberAudioTracks();
+        RecalculateCapacity();
+
+        if (addedTitles.Count > 0)
+        {
+            _shell.ShowToast("Audio Tracks Added", $"Added {addedTitles.Count} track(s). Artwork area resized to {ArtworkRadialWidthMm:F1} mm.", ToastKind.Success);
+        }
+    }
+
+    public void RemoveAudioTrack(CdAudioTrack? track)
+    {
+        if (track is null) return;
+        AudioTracks.Remove(track);
+        RenumberAudioTracks();
+        RecalculateCapacity();
+    }
+
+    public void ClearAudioTracks()
+    {
+        AudioTracks.Clear();
+        RecalculateCapacity();
+    }
+
+    public void MoveTrackUp(CdAudioTrack? track)
+    {
+        if (track is null) return;
+        int idx = AudioTracks.IndexOf(track);
+        if (idx > 0)
+        {
+            AudioTracks.Move(idx, idx - 1);
+            RenumberAudioTracks();
+            RecalculateCapacity();
+        }
+    }
+
+    public void MoveTrackDown(CdAudioTrack? track)
+    {
+        if (track is null) return;
+        int idx = AudioTracks.IndexOf(track);
+        if (idx >= 0 && idx < AudioTracks.Count - 1)
+        {
+            AudioTracks.Move(idx, idx + 1);
+            RenumberAudioTracks();
+            RecalculateCapacity();
+        }
+    }
+
+    private void RenumberAudioTracks()
+    {
+        for (int i = 0; i < AudioTracks.Count; i++)
+        {
+            AudioTracks[i].TrackNumber = i + 1;
+        }
+    }
+
+    public void RecalculateCapacity()
+    {
+        CdDiscParameters discParams = new(
+            InnerRadiusMm,
+            OuterRadiusMm,
+            IsCd ? 359_849 : 2_295_104,
+            1.2,
+            0.0,
+            OuterRadiusMm,
+            0.0,
+            0.0,
+            0.0);
+
+        CapacityMetrics = CdAudioDecoder.CalculateCapacity(AudioTracks.ToList(), discParams);
+
+        if (AudioTracks.Count > 0)
+        {
+            AudioSummaryText = $"{AudioTracks.Count} audio track(s) · {CapacityMetrics.TotalAudioDuration.TotalMinutes:F1} min playing time ({CapacityMetrics.AudioDiscPercentage:F1}% disc) · Available artwork width: {CapacityMetrics.ArtworkRadialWidthMm:F1} mm";
+        }
+        else
+        {
+            AudioSummaryText = "No audio tracks attached (Full disc surface available for visual artwork: 32.3 mm)";
+        }
+
+        // Keep design layer inner/outer radii matched
+        SyncImageToDesignLayer();
+        StartBurnCommand.NotifyCanExecuteChanged();
+    }
+
+    // ---- Image Artwork Handling ----
     public void BrowseAndLoadImage()
     {
         string[]? picked = _shell.Dialogs?.PickImages();
@@ -289,12 +450,13 @@ public partial class WizardViewModel : ObservableObject
         {
             _shell.RequestNewProjectFromTemplateAsync(value, null).GetAwaiter().GetResult();
         }
+        RecalculateCapacity();
         SyncImageToDesignLayer();
     }
 
     public bool CanExecuteNextStep() => CurrentStep switch
     {
-        WizardStep.LoadImage => HasImage,
+        WizardStep.LoadImage => HasImage && !IsAudioCapacityExceeded,
         WizardStep.PositionLayout => true,
         WizardStep.FinalizeBurn => true,
         WizardStep.SaveDesign => true,
@@ -336,6 +498,12 @@ public partial class WizardViewModel : ObservableObject
 
     private async Task ExecuteBurnAsync()
     {
+        if (IsAudioCapacityExceeded)
+        {
+            _shell.ShowToast("Capacity Exceeded", "Audio tracks exceed CD-R capacity (80 min). Remove some tracks before burning.", ToastKind.Error);
+            return;
+        }
+
         if (_burn.StartBurnCommand.CanExecute(null))
         {
             await _burn.StartBurnCommand.ExecuteAsync(null);
@@ -360,9 +528,69 @@ public partial class WizardViewModel : ObservableObject
 
     private async Task ExecuteExportMasterAsync()
     {
+        if (HasAudioTracks && IsCd)
+        {
+            await ExecuteGenerateHybridMasterAsync();
+            return;
+        }
+
         if (_shell.Export.GenerateCommand.CanExecute(null))
         {
             await _shell.Export.GenerateCommand.ExecuteAsync(null);
+        }
+    }
+
+    public async Task ExecuteGenerateHybridMasterAsync()
+    {
+        if (!HasImage || AudioTracks.Count == 0)
+        {
+            _shell.ShowToast("Cannot Generate Master", "Both an artwork image and at least one audio track are required for hybrid mastering.", ToastKind.Warning);
+            return;
+        }
+
+        string defaultName = $"{ProjectSaveName}_AudioVisualMaster.wav";
+        string? picked = _shell.Dialogs?.PickSave(
+            L.T("Export Master WAV & CUE"),
+            defaultName,
+            "Waveform Audio Master (*.wav)|*.wav");
+
+        if (string.IsNullOrWhiteSpace(picked)) return;
+
+        try
+        {
+            _shell.SetBusy(true);
+            CdDiscParameters discParams = new(
+                InnerRadiusMm,
+                OuterRadiusMm,
+                359_849,
+                1.2,
+                0.0,
+                OuterRadiusMm,
+                0.0,
+                0.0,
+                0.0);
+
+            var audioFiles = AudioTracks.Select(t => t.FilePath).ToList();
+            var res = await Task.Run(() => CdAudioVisualHybridGenerator.Generate(
+                audioFiles,
+                ImagePath!,
+                picked,
+                discParams,
+                _state.Tone,
+                _state.CdInterleave));
+
+            _shell.ShowToast(
+                "Master Generated Successfully",
+                $"Hybrid Audio CD + Visual Surface master created:\n• WAV: {Path.GetFileName(res.MasterWavePath)}\n• CUE: {Path.GetFileName(res.CueSheetPath)}\n• Total playing time: {res.Metrics.TotalAudioDuration.TotalMinutes:F1} min\n• Visual art width: {res.Metrics.ArtworkRadialWidthMm:F1} mm",
+                ToastKind.Success);
+        }
+        catch (Exception ex)
+        {
+            _shell.ShowToast("Mastering Failed", ex.Message, ToastKind.Error);
+        }
+        finally
+        {
+            _shell.SetBusy(false);
         }
     }
 
@@ -371,6 +599,8 @@ public partial class WizardViewModel : ObservableObject
         ImagePath = null;
         ImagePreview = null;
         ImageInfoText = "No image loaded";
+        AudioTracks.Clear();
+        RecalculateCapacity();
         ScalePercent = 100.0;
         RotationDeg = 0.0;
         TranslateXMm = 0.0;
