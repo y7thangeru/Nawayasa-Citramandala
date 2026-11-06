@@ -47,7 +47,7 @@ public partial class ProjectDialogViewModel : ObservableObject
     /// per disc family. User-saved presets live inside their family's category.</summary>
     public const int RecentCategoryIndex = 0;
 
-    public IReadOnlyList<string> TemplateCategories { get; } = [L.T("最近"), "CD", "DVD", "Blu-ray"];
+    public IReadOnlyList<string> TemplateCategories { get; } = [L.T("Recent"), "CD", "DVD", "Blu-ray"];
 
     public ProjectDialogViewModel(DiscParametersState state, ProjectDialogRequest request)
         : this(state, request, new RecentTemplateStore(), string.Empty)
@@ -76,7 +76,7 @@ public partial class ProjectDialogViewModel : ObservableObject
         BuildTemplates();
         if (_editMode)
         {
-            Name = L.T("工程设置");
+            Name = L.T("Project Settings");
         }
         else
         {
@@ -128,7 +128,7 @@ public partial class ProjectDialogViewModel : ObservableObject
 
     public bool EditMode => _editMode;
 
-    public string DialogTitle => _editMode ? L.T("工程设置") : L.T("新建工程");
+    public string DialogTitle => _editMode ? L.T("Project Settings") : L.T("New Project");
 
     public string ConfirmLabel => _editMode ? L.T("确定") : L.T("创建工程");
 
@@ -156,7 +156,7 @@ public partial class ProjectDialogViewModel : ObservableObject
         {
             string name = Name.Trim();
             return name.Length == 0
-                ? L.T("请填写工程名。")
+                ? L.T("Please enter a project name.")
                 : L.F($"将保存为：{SanitizeFileName(name)}{ProjectJsonStore.FileExtension}");
         }
     }
@@ -424,8 +424,8 @@ public partial class ProjectDialogViewModel : ObservableObject
     /// family defaults, or in project settings resets the fields to them.</summary>
     private ProjectTemplateTile BlankTileFor(OpticalDiscFamily family)
     {
-        string title = _editMode ? L.T("默认参数") : L.T("空白工程");
-        string detail = _editMode ? L.T("恢复该盘型的默认几何") : L.T("从默认参数开始");
+        string title = _editMode ? L.T("Default parameters") : L.T("Blank project");
+        string detail = _editMode ? L.T("Restore default geometry for this media") : L.T("Start with default parameters");
         return new(null, title, detail, family);
     }
 
@@ -439,7 +439,7 @@ public partial class ProjectDialogViewModel : ObservableObject
             templates.Add(new(
                 preset.Id,
                 L.T(preset.DisplayName),
-                L.F($"{preset.Sectors:N0} 扇区 · {preset.InnerRadiusMm:0.#}–{preset.OuterRadiusMm:0.#} mm"),
+                L.F($"{preset.Sectors:N0} sectors · {preset.InnerRadiusMm:0.#}–{preset.OuterRadiusMm:0.#} mm"),
                 OpticalDiscFamily.CompactDisc,
                 preset.Contributor));
         }
@@ -450,7 +450,7 @@ public partial class ProjectDialogViewModel : ObservableObject
             templates.Add(new(
                 preset.Id,
                 L.T(preset.DisplayName),
-                L.F($"{preset.TotalSectors:N0} 扇区 · {preset.InnerRadiusMm:0.#}–{preset.OuterRadiusMm:0.#} mm"),
+                L.F($"{preset.TotalSectors:N0} sectors · {preset.InnerRadiusMm:0.#}–{preset.OuterRadiusMm:0.#} mm"),
                 OpticalDiscFamily.Dvd,
                 preset.Contributor));
         }
@@ -462,8 +462,8 @@ public partial class ProjectDialogViewModel : ObservableObject
             templates.Add(new(
                 preset.Id,
                 L.T(preset.DisplayName),
-                L.F($"{geometry.TotalSectors:N0} 扇区 · {geometry.InnerRadiusMm:0.#}–{geometry.OuterRadiusMm:0.#} mm")
-                + (preset.InvertMapping ? L.T(" · 反转 3T/6T") : string.Empty),
+                L.F($"{geometry.TotalSectors:N0} sectors · {geometry.InnerRadiusMm:0.#}–{geometry.OuterRadiusMm:0.#} mm")
+                + (preset.InvertMapping ? " · Inverted 3T/6T" : string.Empty),
                 OpticalDiscFamily.BluRay,
                 preset.Contributor));
         }
@@ -627,7 +627,7 @@ public partial class ProjectDialogViewModel : ObservableObject
         string name = Name.Trim();
         if (name.Length == 0)
         {
-            throw new ArgumentException(L.T("请填写工程名。"));
+            throw new ArgumentException(L.T("Please enter a project name."));
         }
 
         (double inner, double outer, long sectors, double pitchLinear, double pitchQuadratic, double pitchCubic)
@@ -635,7 +635,7 @@ public partial class ProjectDialogViewModel : ObservableObject
         string directory = SaveDirectory.Trim();
         if (directory.Length == 0)
         {
-            throw new ArgumentException(L.T("请选择保存位置。"));
+            throw new ArgumentException(L.T("Please select a save location."));
         }
 
         string fileName = $"{SanitizeFileName(name)}{ProjectJsonStore.FileExtension}";
@@ -658,46 +658,46 @@ public partial class ProjectDialogViewModel : ObservableObject
     private (double Inner, double Outer, long Sectors, double PitchLinear, double PitchQuadratic, double PitchCubic)
         ParseGeometry()
     {
-        double inner = ParseField(InnerRadiusText, L.T("内半径"));
-        double outer = ParseField(OuterRadiusText, L.T("外半径"));
+        double inner = ParseField(InnerRadiusText, L.T("Inner radius"));
+        double outer = ParseField(OuterRadiusText, L.T("Outer radius"));
         long sectors = long.Parse(SectorsText.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture);
         if (sectors <= 0)
         {
-            throw new ArgumentException(L.T("扇区数必须是正整数。"));
+            throw new ArgumentException(L.T("sectors数必须是正整数。"));
         }
 
         if (IsDvd && sectors % 16 != 0)
         {
-            throw new ArgumentException(L.T("DVD 的扇区数必须是 16 的倍数。"));
+            throw new ArgumentException(L.T("DVD 的sectors数必须是 16 的倍数。"));
         }
 
         if (IsBluRay)
         {
             if (sectors % ProjectDocument.BluRaySectorsPerCluster != 0)
             {
-                throw new ArgumentException(L.T("蓝光的扇区数必须是 32 的倍数。"));
+                throw new ArgumentException(L.T("蓝光的sectors数必须是 32 的倍数。"));
             }
 
             if (sectors > ProjectDocument.BluRaySectorsPerLayer)
             {
                 throw new ArgumentException(
-                    L.F($"蓝光扇区数不能超过单层容量 {ProjectDocument.BluRaySectorsPerLayer:N0}。"));
+                    L.F($"蓝光sectors数不能超过单层容量 {ProjectDocument.BluRaySectorsPerLayer:N0}。"));
             }
 
             if (outer > 60)
             {
-                throw new ArgumentException(L.T("蓝光外半径不能超过 60 mm。"));
+                throw new ArgumentException(L.T("Blu-ray outer radius cannot exceed 60 mm."));
             }
         }
 
         if (outer <= inner)
         {
-            throw new ArgumentException(L.T("外半径必须大于内半径。"));
+            throw new ArgumentException(L.T("Outer radius must be greater than inner radius."));
         }
 
-        double pitchLinear = ParseNumber(PitchLinearText, L.T("相对一次项"));
-        double pitchQuadratic = ParseNumber(PitchQuadraticText, L.T("相对二次项"));
-        double pitchCubic = ParseNumber(PitchCubicText, L.T("相对三次项"));
+        double pitchLinear = ParseNumber(PitchLinearText, L.T("Pitch linear term"));
+        double pitchQuadratic = ParseNumber(PitchQuadraticText, L.T("Pitch quadratic term"));
+        double pitchCubic = ParseNumber(PitchCubicText, L.T("Pitch cubic term"));
         DvdTrackGeometry.ValidatePitchCoefficients(pitchLinear, pitchQuadratic, pitchCubic);
 
         return (inner, outer, sectors, pitchLinear, pitchQuadratic, pitchCubic);
@@ -728,7 +728,7 @@ public partial class ProjectDialogViewModel : ObservableObject
                 pitchCubic,
                 invertMapping: Family == OpticalDiscFamily.BluRay && _templateInvertMapping);
             ErrorMessage = string.Empty;
-            SavedPresetMessage = L.F($"已保存为预设：{displayName}");
+            SavedPresetMessage = L.F($"Saved as preset: {displayName}");
             if (_editMode)
             {
                 RefreshTemplatesAfterSave();
@@ -742,7 +742,7 @@ public partial class ProjectDialogViewModel : ObservableObject
                                               or InvalidDataException)
         {
             SavedPresetMessage = string.Empty;
-            ErrorMessage = L.F($"无法保存预设：{exception.Message}");
+            ErrorMessage = L.F($"Failed to save preset: {exception.Message}");
         }
     }
 
@@ -832,7 +832,7 @@ public partial class ProjectDialogViewModel : ObservableObject
                 ApplySelectedTemplate(SelectedTemplate);
             }
 
-            SavedPresetMessage = L.F($"已删除预设：{removedName}");
+            SavedPresetMessage = L.F($"Deleted preset: {removedName}");
         }
         catch (Exception exception) when (exception is IOException
                                               or UnauthorizedAccessException
@@ -841,7 +841,7 @@ public partial class ProjectDialogViewModel : ObservableObject
                                               or InvalidOperationException)
         {
             SavedPresetMessage = string.Empty;
-            ErrorMessage = L.F($"无法删除预设：{exception.Message}");
+            ErrorMessage = L.F($"Failed to delete preset: {exception.Message}");
         }
     }
 
@@ -860,7 +860,7 @@ public partial class ProjectDialogViewModel : ObservableObject
     }
 
     private static double ParseField(string raw, string field)
-        => TryParseMm(raw) ?? throw new FormatException(L.F($"{field}不是有效数字。"));
+        => TryParseMm(raw) ?? throw new FormatException(L.F($"{field}is not a valid number."));
 
     private static double ParseNumber(string raw, string field)
     {
@@ -873,14 +873,14 @@ public partial class ProjectDialogViewModel : ObservableObject
             }
         }
 
-        throw new FormatException(L.F($"{field}不是有效数字。"));
+        throw new FormatException(L.F($"{field}is not a valid number."));
     }
 
     private static string SanitizeFileName(string name)
     {
         char[] invalid = Path.GetInvalidFileNameChars();
         string cleaned = new(name.Select(c => invalid.Contains(c) ? '_' : c).ToArray());
-        return cleaned.Length == 0 ? L.T("工程") : cleaned;
+        return cleaned.Length == 0 ? L.T("Project") : cleaned;
     }
 }
 
@@ -908,7 +908,7 @@ public sealed record ProjectTemplateTile(
         ? System.Windows.Visibility.Visible
         : System.Windows.Visibility.Collapsed;
 
-    public string ContributorToolTip => L.F($"贡献者：{Contributor}");
+    public string ContributorToolTip => L.F($"Contributor: {Contributor}");
 
     public System.Windows.Visibility UserBadgeVisibility => IsUserPreset
         ? System.Windows.Visibility.Visible

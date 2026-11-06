@@ -231,11 +231,11 @@ public partial class MainWindow : Window
             : kind == NawayasaCitramandala.Burning.OpticalBurnMediaKind.BluRayData ? 12219392L * 2048 : 2295104L * 2048;
         _shell.SetBusy(true);
         _shell.BeginBurnDockJob(kind, total);
-        _shell.ReportBurnProgress(new("buffer", L.T("正在准备防断流缓冲区…"), 0, total));
+        _shell.ReportBurnProgress(new("buffer", L.T("Preparing buffer underrun protection cache..."), 0, total));
         if (phase != "buffer")
-            _shell.ReportBurnProgress(new("write", L.T("刻录机开始写入。"), total / 3, total, 8.25 * 1024 * 1024));
+            _shell.ReportBurnProgress(new("write", L.T("Recorder writing started."), total / 3, total, 8.25 * 1024 * 1024));
         if (phase == "finalize")
-            _shell.ReportBurnProgress(new("finalize", L.T("正在刷新缓存并关闭刻录会话…"), total / 3, total));
+            _shell.ReportBurnProgress(new("finalize", L.T("Flushing cache and closing burn session..."), total / 3, total));
     }
 
     /// <summary>Snapshot hook: forces the hovered state on the first recent-project card
@@ -521,7 +521,7 @@ public partial class MainWindow : Window
         if (!_shell.IsProjectOpen || SidebarBorder.Visibility != Visibility.Visible
             || ProjectHeaderButton.Visibility != Visibility.Visible)
         {
-            _shell.ShowToast(L.T("标定参数已应用"), L.T("本工程的参数已更新。"), ToastKind.Success);
+            _shell.ShowToast(L.T("Calibration parameters applied"), L.T("Project parameters updated."), ToastKind.Success);
             return;
         }
 
@@ -633,12 +633,12 @@ public partial class MainWindow : Window
         if (settings.CacheDirectory.Length > 0
             && !string.Equals(cacheDirectory, settings.CacheDirectory, StringComparison.OrdinalIgnoreCase))
         {
-            _shell.ShowToast(L.T("缓存位置不可用"), L.T("已改用默认缓存目录。"), ToastKind.Warning);
+            _shell.ShowToast(L.T("Cache location unavailable"), L.T("Reverted to default cache directory."), ToastKind.Warning);
         }
 
         if (languageChanged)
         {
-            _shell.ShowToast(L.T("语言设置已保存"), L.T("界面文字已立即更新。"), ToastKind.Info);
+            _shell.ShowToast(L.T("Language setting saved"), L.T("Interface text updated."), ToastKind.Info);
         }
     }
 
@@ -911,6 +911,6 @@ public partial class MainWindow : Window
 
         // The tooltip is the one label here that is not an XAML binding, so it refreshes on
         // every call, including a language switch while the collapse state is unchanged.
-        SidebarCollapseToggle.ToolTip = collapsed ? L.T("展开侧边栏") : L.T("收起侧边栏");
+        SidebarCollapseToggle.ToolTip = collapsed ? L.T("Expand sidebar") : L.T("Collapse sidebar");
     }
 }

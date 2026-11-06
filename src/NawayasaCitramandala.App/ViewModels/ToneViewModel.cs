@@ -73,7 +73,7 @@ public partial class ToneViewModel : ObservableObject
     private bool _hasTonePreview;
 
     [ObservableProperty]
-    private string _tonePreviewStatus = L.T("导入图片后自动生成预览。");
+    private string _tonePreviewStatus = L.T("Preview will generate automatically after loading an image.");
 
     internal bool IsTonePreviewReady => _tonePreviewReady;
 
@@ -85,15 +85,15 @@ public partial class ToneViewModel : ObservableObject
     {
         if (_tonePreviewRendering)
         {
-            return L.T("正在按当前影调渲染…");
+            return L.T("Rendering with current tone...");
         }
 
         if (_tonePreviewError is { } error)
         {
-            return L.F($"影调预览失败：{error}");
+            return L.F($"Tone preview failed: {error}");
         }
 
-        return _tonePreviewReady ? L.T("实时更新") : L.T("导入图片后自动生成预览。");
+        return _tonePreviewReady ? L.T("Live Update") : L.T("Preview will generate automatically after loading an image.");
     }
 
     public RelayCommand ResetToneCommand { get; }
@@ -405,20 +405,20 @@ public partial class ToneViewModel : ObservableObject
 
     private BluRayDiscParameters ReadBluRayPreviewParameters()
     {
-        long totalSectors = ParameterParser.ParsePositiveLong(_state.BdTotalSectors, L.T("蓝光总扇区数"));
+        long totalSectors = ParameterParser.ParsePositiveLong(_state.BdTotalSectors, L.T("Blu-ray total sectors"));
         if (totalSectors > uint.MaxValue)
         {
-            throw new ArgumentOutOfRangeException(L.T("蓝光总扇区数"), L.T("总扇区数超出蓝光引擎支持范围。"));
+            throw new ArgumentOutOfRangeException(L.T("Blu-ray total sectors"), L.T("Total sectors exceed Blu-ray engine support range."));
         }
 
         BluRayDiscParameters parameters = new(
             checked((uint)totalSectors),
             1,
-            ParameterParser.ParsePositiveDouble(_state.BdInnerRadius, L.T("蓝光内半径")),
-            ParameterParser.ParsePositiveDouble(_state.BdOuterRadius, L.T("蓝光外半径")),
-            PitchLinear: ParameterParser.ParseDouble(_state.BdPitchLinear, L.T("相对一次项")),
-            PitchQuadratic: ParameterParser.ParseDouble(_state.BdPitchQuadratic, L.T("相对二次项")),
-            PitchCubic: ParameterParser.ParseDouble(_state.BdPitchCubic, L.T("相对三次项")));
+            ParameterParser.ParsePositiveDouble(_state.BdInnerRadius, L.T("Blu-ray inner radius")),
+            ParameterParser.ParsePositiveDouble(_state.BdOuterRadius, L.T("Blu-ray outer radius")),
+            PitchLinear: ParameterParser.ParseDouble(_state.BdPitchLinear, L.T("Relative linear term")),
+            PitchQuadratic: ParameterParser.ParseDouble(_state.BdPitchQuadratic, L.T("Relative quadratic term")),
+            PitchCubic: ParameterParser.ParseDouble(_state.BdPitchCubic, L.T("Relative cubic term")));
         parameters.Validate();
         return parameters;
     }
@@ -426,31 +426,31 @@ public partial class ToneViewModel : ObservableObject
     private CdDiscParameters ReadCdPreviewParameters()
     {
         CdDiscParameters parameters = new(
-            ParameterParser.ParsePositiveDouble(_state.CdInnerRadius, L.T("内半径")),
-            ParameterParser.ParsePositiveDouble(_state.CdOuterRadius, L.T("外半径")),
-            ParameterParser.ParsePositiveLong(_state.CdSectors, L.T("扇区数")),
-            PitchLinear: ParameterParser.ParseDouble(_state.CdPitchLinear, L.T("相对一次项")),
-            PitchQuadratic: ParameterParser.ParseDouble(_state.CdPitchQuadratic, L.T("相对二次项")),
-            PitchCubic: ParameterParser.ParseDouble(_state.CdPitchCubic, L.T("相对三次项")));
+            ParameterParser.ParsePositiveDouble(_state.CdInnerRadius, L.T("Inner radius")),
+            ParameterParser.ParsePositiveDouble(_state.CdOuterRadius, L.T("Outer radius")),
+            ParameterParser.ParsePositiveLong(_state.CdSectors, L.T("Sectors")),
+            PitchLinear: ParameterParser.ParseDouble(_state.CdPitchLinear, L.T("Relative linear term")),
+            PitchQuadratic: ParameterParser.ParseDouble(_state.CdPitchQuadratic, L.T("Relative quadratic term")),
+            PitchCubic: ParameterParser.ParseDouble(_state.CdPitchCubic, L.T("Relative cubic term")));
         parameters.Validate();
         return parameters;
     }
 
     private DvdStreamingOptions ReadDvdPreviewOptions()
     {
-        long totalSectors = ParameterParser.ParsePositiveLong(_state.DvdTotalSectors, L.T("总扇区数"));
+        long totalSectors = ParameterParser.ParsePositiveLong(_state.DvdTotalSectors, L.T("Total sectors"));
         if (totalSectors > uint.MaxValue)
         {
-            throw new ArgumentOutOfRangeException(L.T("总扇区数"), L.T("总扇区数超出 DVD 引擎支持范围。"));
+            throw new ArgumentOutOfRangeException(L.T("Total sectors"), L.T("Total sectors exceed DVD engine support range."));
         }
 
         DvdStreamingOptions options = new(
             checked((uint)totalSectors),
-            ParameterParser.ParsePositiveDouble(_state.DvdInnerRadius, L.T("内半径")),
-            ParameterParser.ParsePositiveDouble(_state.DvdOuterRadius, L.T("外半径")),
-            PitchLinear: ParameterParser.ParseDouble(_state.DvdPitchLinear, L.T("DVD 轨距一次项")),
-            PitchQuadratic: ParameterParser.ParseDouble(_state.DvdPitchQuadratic, L.T("DVD 轨距二次项")),
-            PitchCubic: ParameterParser.ParseDouble(_state.DvdPitchCubic, L.T("DVD 轨距三次项")),
+            ParameterParser.ParsePositiveDouble(_state.DvdInnerRadius, L.T("Inner radius")),
+            ParameterParser.ParsePositiveDouble(_state.DvdOuterRadius, L.T("Outer radius")),
+            PitchLinear: ParameterParser.ParseDouble(_state.DvdPitchLinear, L.T("DVD pitch linear term")),
+            PitchQuadratic: ParameterParser.ParseDouble(_state.DvdPitchQuadratic, L.T("DVD pitch quadratic term")),
+            PitchCubic: ParameterParser.ParseDouble(_state.DvdPitchCubic, L.T("DVD pitch cubic term")),
             Tone: _state.DvdTone);
         options.Validate();
         return options;

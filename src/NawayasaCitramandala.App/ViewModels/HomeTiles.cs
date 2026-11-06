@@ -23,8 +23,8 @@ public sealed record HomeTemplateTile(
     // language it was created in.
     public static HomeTemplateTile CreateBlank() => new(
         null,
-        L.T("空白工程"),
-        L.T("从默认参数开始"),
+        L.T("Blank project"),
+        L.T("Start with default parameters"),
         PackIconLucideKind.SquarePen,
         OpticalDiscFamily.CompactDisc,
         IsBlank: true);
@@ -46,7 +46,7 @@ public sealed record HomeTemplateTile(
         ? System.Windows.Visibility.Visible
         : System.Windows.Visibility.Collapsed;
 
-    public string ContributorToolTip => L.F($"贡献者：{Contributor}");
+    public string ContributorToolTip => L.F($"Contributor: {Contributor}");
 }
 
 /// <summary>One card in the home page's recent-project list. The thumbnail is the picture
@@ -75,10 +75,10 @@ public sealed class RecentProjectTile
 
     public string LocationText => _projectExists
         ? Path.GetDirectoryName(Entry.ProjectPath) ?? Entry.ProjectPath
-        : L.T("工程文件已移动或删除");
+        : L.T("Project file moved or deleted");
 
     public string ToolTipText
-        => L.F($"{Entry.ProjectPath}\n最近打开：{Entry.LastOpenedUtc.ToLocalTime():yyyy-MM-dd HH:mm}");
+        => L.F($"{Entry.ProjectPath}\nLast opened: {Entry.LastOpenedUtc.ToLocalTime():yyyy-MM-dd HH:mm}");
 
     internal static RecentProjectTile Create(RecentProjectEntry entry)
     {

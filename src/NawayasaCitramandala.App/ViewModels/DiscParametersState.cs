@@ -199,8 +199,8 @@ public partial class DiscParametersState : ObservableObject
         ? $"+{ToneBrightness:0}"
         : $"{ToneBrightness:0}";
 
-    public string ToneSummary => L.F($"{ToneLevels} 级 · {ToneDitherText} 抖动")
-        + (ToneSrgbLinearization ? L.T(" · sRGB 线性化") : string.Empty);
+    public string ToneSummary => L.F($"{ToneLevels}  levels · {ToneDitherText} Dither")
+        + (ToneSrgbLinearization ? L.T(" · sRGB linear") : string.Empty);
 
     /// <summary>A CUE sheet only accompanies PCM WAV tracks, so the CD page offers its
     /// toggle only while the chosen output is a .wav file.</summary>
@@ -213,11 +213,11 @@ public partial class DiscParametersState : ObservableObject
 
     /// <summary>Label of the CD output the design page's pipeline card offers; the artifact
     /// switches between a data ISO and an audio track as the on-disc folder appears.</summary>
-    public string CdOutputLabel => HasCdFiles ? L.T("输出数据盘 (.iso)") : L.T("输出音轨 (.wav / .raw)");
+    public string CdOutputLabel => HasCdFiles ? L.T("Output Data Disc (.iso)") : L.T("Output Audio Track (.wav / .raw)");
 
     public string CdOutputHint => HasCdFiles
-        ? L.T("包含随盘文件，导出为 CD 数据盘 ISO。")
-        : L.T("无随盘文件时生成音轨，推荐 WAV 格式。");
+        ? L.T("Contains disc files, exporting as CD data disc ISO.")
+        : L.T("Generates audio track when no data files present; WAV recommended.");
 
     partial void OnCdDataDirectoryChanged(string value) => NormalizeCdOutputFormat();
 
@@ -251,17 +251,17 @@ public partial class DiscParametersState : ObservableObject
         {
             bool bd = family == OpticalDiscFamily.BluRay;
             return DvdPitchDisplay.Format(new(bd ? CalibrationDiscKind.BluRay : CalibrationDiscKind.Cd,
-                ParameterParser.ParsePositiveDouble(bd ? (actual ? BdActualInnerRadius : BdInnerRadius) : (actual ? CdActualInnerRadius : CdInnerRadius), L.T("内半径")),
-                ParameterParser.ParsePositiveDouble(bd ? (actual ? BdActualOuterRadius : BdOuterRadius) : (actual ? CdActualOuterRadius : CdOuterRadius), L.T("外半径")),
-                ParameterParser.ParsePositiveLong(bd ? BdTotalSectors : CdSectors, L.T("总扇区数")),
+                ParameterParser.ParsePositiveDouble(bd ? (actual ? BdActualInnerRadius : BdInnerRadius) : (actual ? CdActualInnerRadius : CdInnerRadius), L.T("Inner radius")),
+                ParameterParser.ParsePositiveDouble(bd ? (actual ? BdActualOuterRadius : BdOuterRadius) : (actual ? CdActualOuterRadius : CdOuterRadius), L.T("Outer radius")),
+                ParameterParser.ParsePositiveLong(bd ? BdTotalSectors : CdSectors, L.T("Total sectors")),
                 bd ? BluRayDiscParameters.ChannelBitLengthNm : CdDiscParameters.StandardLinearVelocityMmPerSecond,
-                ParameterParser.ParseDouble(bd ? (actual ? BdActualPitchLinear : BdPitchLinear) : (actual ? CdActualPitchLinear : CdPitchLinear), L.T("相对一次项")),
-                ParameterParser.ParseDouble(bd ? (actual ? BdActualPitchQuadratic : BdPitchQuadratic) : (actual ? CdActualPitchQuadratic : CdPitchQuadratic), L.T("相对二次项")),
-                ParameterParser.ParseDouble(bd ? (actual ? BdActualPitchCubic : BdPitchCubic) : (actual ? CdActualPitchCubic : CdPitchCubic), L.T("相对三次项"))));
+                ParameterParser.ParseDouble(bd ? (actual ? BdActualPitchLinear : BdPitchLinear) : (actual ? CdActualPitchLinear : CdPitchLinear), L.T("Relative linear term")),
+                ParameterParser.ParseDouble(bd ? (actual ? BdActualPitchQuadratic : BdPitchQuadratic) : (actual ? CdActualPitchQuadratic : CdPitchQuadratic), L.T("Relative quadratic term")),
+                ParameterParser.ParseDouble(bd ? (actual ? BdActualPitchCubic : BdPitchCubic) : (actual ? CdActualPitchCubic : CdPitchCubic), L.T("Relative cubic term"))));
         }
         catch (Exception exception) when (exception is ArgumentException or FormatException or OverflowException)
         {
-            return L.T("轨距模型无效：请检查半径、扇区数及系数，整个刻录区的轨距必须为正。");
+            return L.T("Track pitch model invalid: please check radii, sectors, and coefficients; pitch must be positive.");
         }
     }
 
@@ -270,17 +270,17 @@ public partial class DiscParametersState : ObservableObject
         try
         {
             return DvdPitchDisplay.Format(new(CalibrationDiscKind.Dvd,
-                ParameterParser.ParsePositiveDouble(actual ? DvdActualInnerRadius : DvdInnerRadius, L.T("内半径")),
-                ParameterParser.ParsePositiveDouble(actual ? DvdActualOuterRadius : DvdOuterRadius, L.T("外半径")),
-                ParameterParser.ParsePositiveLong(DvdTotalSectors, L.T("总扇区数")),
+                ParameterParser.ParsePositiveDouble(actual ? DvdActualInnerRadius : DvdInnerRadius, L.T("Inner radius")),
+                ParameterParser.ParsePositiveDouble(actual ? DvdActualOuterRadius : DvdOuterRadius, L.T("Outer radius")),
+                ParameterParser.ParsePositiveLong(DvdTotalSectors, L.T("Total sectors")),
                 DvdStreamingOptions.StandardChannelBitLengthNm,
-                ParameterParser.ParseDouble(actual ? DvdActualPitchLinear : DvdPitchLinear, L.T("相对一次项")),
-                ParameterParser.ParseDouble(actual ? DvdActualPitchQuadratic : DvdPitchQuadratic, L.T("相对二次项")),
-                ParameterParser.ParseDouble(actual ? DvdActualPitchCubic : DvdPitchCubic, L.T("相对三次项"))));
+                ParameterParser.ParseDouble(actual ? DvdActualPitchLinear : DvdPitchLinear, L.T("Relative linear term")),
+                ParameterParser.ParseDouble(actual ? DvdActualPitchQuadratic : DvdPitchQuadratic, L.T("Relative quadratic term")),
+                ParameterParser.ParseDouble(actual ? DvdActualPitchCubic : DvdPitchCubic, L.T("Relative cubic term"))));
         }
         catch (Exception exception) when (exception is ArgumentException or FormatException or OverflowException)
         {
-            return L.T("轨距模型无效：请检查半径、扇区数及系数，整个刻录区的轨距必须为正。");
+            return L.T("Track pitch model invalid: please check radii, sectors, and coefficients; pitch must be positive.");
         }
     }
 
@@ -324,7 +324,7 @@ public partial class DiscParametersState : ObservableObject
                 FallbackLanguage: "zh-CN",
                 BluRayPresets: []);
             ApplyPresetDocuments(MergePresets(builtIn, emptyUser));
-            return L.F($"用户预设 JSON 无法加载，已继续使用程序内置参数。\n\n{exception.Message}\n\n文件位置：\n{_discPresetJsonPath}");
+            return L.F($"User presets JSON failed to load, falling back to built-in presets.\n\n{exception.Message}\n\nFile location: \n{_discPresetJsonPath}");
         }
     }
 
@@ -362,7 +362,7 @@ public partial class DiscParametersState : ObservableObject
         string name = displayName.Trim();
         if (name.Length == 0)
         {
-            throw new ArgumentException(L.T("请填写预设名称。"), nameof(displayName));
+            throw new ArgumentException(L.T("Please enter a preset name."), nameof(displayName));
         }
 
         EnsurePresetsJsonExists();
@@ -377,7 +377,7 @@ public partial class DiscParametersState : ObservableObject
         string id = $"user-{familyToken}-{now:yyyyMMdd-HHmmss}-{Guid.NewGuid().ToString("N")[..4]}";
         string note = string.Create(
             System.Globalization.CultureInfo.InvariantCulture,
-            $"用户预设：内半径 {innerRadiusMm:0.###} mm、外半径 {outerRadiusMm:0.###} mm、{sectors:N0} 扇区。");
+            $"User preset: Inner radius {innerRadiusMm:0.###} mm、外半径 {outerRadiusMm:0.###} mm、{sectors:N0} sectors.");
         DiscPresetJsonDocument updated = family switch
         {
             OpticalDiscFamily.Dvd => user with
@@ -449,7 +449,7 @@ public partial class DiscParametersState : ObservableObject
         ArgumentException.ThrowIfNullOrWhiteSpace(presetId);
         if (!presetId.StartsWith("user-", StringComparison.Ordinal))
         {
-            throw new InvalidOperationException(L.T("内置预设不能删除。"));
+            throw new InvalidOperationException(L.T("Built-in presets cannot be deleted."));
         }
 
         EnsurePresetsJsonExists();

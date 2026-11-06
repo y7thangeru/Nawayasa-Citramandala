@@ -53,21 +53,21 @@ public sealed class BluRayPresetStore(string path)
             else
             {
                 JsonElement parametersJson = Find(root, "parameters")
-                    ?? throw new InvalidDataException(L.T("请选择蓝光预设库或之前导出的蓝光参数 JSON（缺少 parameters）。"));
+                    ?? throw new InvalidDataException(L.T("Please select a Blu-ray preset catalog or previously exported Blu-ray parameters JSON (missing parameters)."));
                 ValidateGeometryFields(parametersJson);
                 BluRayDiscParameters parameters = parametersJson.Deserialize<BluRayDiscParameters>(JsonOptions)
-                    ?? throw new InvalidDataException(L.T("蓝光 parameters 不能为空。"));
+                    ?? throw new InvalidDataException(L.T("Blu-ray parameters cannot be empty."));
                 bool invert = false;
                 if (Find(root, "luminanceMapping") is JsonElement mapping && Find(mapping, "invert") is JsonElement polarity)
                 {
                     if (polarity.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
-                        throw new InvalidDataException(L.T("蓝光 luminanceMapping.invert 必须是布尔值。"));
+                        throw new InvalidDataException(L.T("Blu-ray luminanceMapping.invert must be a boolean."));
                     invert = polarity.GetBoolean();
                 }
                 imported = [new(NewId(), System.IO.Path.GetFileNameWithoutExtension(sourcePath), parameters, invert)];
             }
         }
-        if (imported.Length == 0) throw new InvalidDataException(L.T("该文件没有可导入的蓝光预设。"));
+        if (imported.Length == 0) throw new InvalidDataException(L.T("This file contains no importable Blu-ray presets."));
         foreach (Entry entry in imported) Validate(entry);
         // Load only after the entire import has passed validation. A malformed
         // existing file also blocks the save; it is never silently replaced.
@@ -87,18 +87,18 @@ public sealed class BluRayPresetStore(string path)
             if (Find(json.RootElement, "presets") is JsonElement presets && presets.ValueKind == JsonValueKind.Array)
                 foreach (JsonElement preset in presets.EnumerateArray())
                     ValidateGeometryFields(Find(preset, "parameters")
-                        ?? throw new InvalidDataException(L.T("蓝光预设缺少 parameters。")));
+                        ?? throw new InvalidDataException(L.T("Blu-ray preset is missing parameters.")));
             document = JsonSerializer.Deserialize<Document>(source, JsonOptions)
-                ?? throw new InvalidDataException(L.T("蓝光预设 JSON 不能为空。"));
+                ?? throw new InvalidDataException(L.T("Blu-ray preset JSON cannot be empty."));
         }
-        catch (JsonException exception) { throw new InvalidDataException(L.T("蓝光预设 JSON 格式无效。"), exception); }
+        catch (JsonException exception) { throw new InvalidDataException(L.T("Blu-ray preset JSON format is invalid."), exception); }
         if (document.SchemaVersion != 1 || document.Presets is null)
-            throw new InvalidDataException(L.T("蓝光预设 JSON 必须包含 schemaVersion: 1 和 presets 列表。"));
+            throw new InvalidDataException(L.T("Blu-ray preset JSON must include schemaVersion: 1 and a presets list."));
         HashSet<string> ids = new(StringComparer.Ordinal);
         foreach (Entry entry in document.Presets)
         {
             Validate(entry);
-            if (!ids.Add(entry.Id)) throw new InvalidDataException(L.F($"蓝光预设 ID 重复：{entry.Id}"));
+            if (!ids.Add(entry.Id)) throw new InvalidDataException(L.F($"Blu-ray preset ID duplicated: {entry.Id}"));
         }
         return document;
     }
@@ -125,10 +125,10 @@ public sealed class BluRayPresetStore(string path)
         if (entry is null || string.IsNullOrWhiteSpace(entry.Id) || string.IsNullOrWhiteSpace(entry.DisplayName)
             || entry.Parameters is null || entry.Id == BluRayDiscPreset.Manual.Id
             || BluRayDiscPreset.BuiltIn.Any(preset => preset.Id == entry.Id))
-            throw new InvalidDataException(L.T("蓝光预设必须包含独立 ID、名称和参数，不能使用内置或未保存预设的 ID。"));
+            throw new InvalidDataException(L.T("Blu-ray preset must contain unique ID, name, and parameters; cannot use built-in or unsaved preset IDs."));
         entry.Parameters.Validate();
         if (entry.Parameters.StartAngleDegrees != 0)
-            throw new InvalidDataException(L.T("当前蓝光制作与标定仅支持起始角 0°；此 JSON 的非零起始角不能导入，也不会自动改为 0°。"));
+            throw new InvalidDataException(L.T("Current Blu-ray burning and calibration only supports start angle 0°; this JSON non-zero start angle cannot be imported."));
     }
     private static JsonElement? Find(JsonElement element, string name)
         => element.ValueKind == JsonValueKind.Object
@@ -139,7 +139,7 @@ public sealed class BluRayPresetStore(string path)
     {
         foreach (string field in new[] { "totalSectors", "layerCount", "innerRadiusMm", "outerRadiusMm" })
             if (Find(parameters, field) is null)
-                throw new InvalidDataException(L.F($"蓝光 parameters 缺少 {field}，不能使用默认值替代导入的参数。"));
+                throw new InvalidDataException(L.F($"Blu-ray parameters missing {field}, cannot use default values for imported parameters."));
     }
     private static string NewId() => "user-bd-" + Guid.NewGuid().ToString("N");
     private static BluRayDiscPreset ToPreset(Entry entry)

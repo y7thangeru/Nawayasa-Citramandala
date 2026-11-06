@@ -19,9 +19,9 @@ public partial class ProjectDialogWindow : Window
         viewModel.PickSaveDirectory = PickDirectory;
         viewModel.CloseWithConfirm = () => DialogResult = true;
         viewModel.ConfirmPresetSwitch = tile => PresetSwitchConfirm.ShowAsync(
-            L.T("切换预设"),
-            L.F($"切换为“{tile.Title}”会用该预设的几何参数覆盖当前参数，确认后无法撤销。是否继续？"),
-            L.T("覆盖参数"));
+            L.T("Switch preset"),
+            L.F($"Switching to \"{tile.Title}\" will overwrite the current geometry parameters with this preset. This cannot be undone. Continue?"),
+            L.T("Overwrite parameters"));
         DataContext = viewModel;
 
         SourceInitialized += (_, _) => WindowCorners.Apply(this);
@@ -47,7 +47,7 @@ public partial class ProjectDialogWindow : Window
     {
         OpenFolderDialog dialog = new()
         {
-            Title = L.T("选择工程保存位置"),
+            Title = L.T("Select project save location"),
             InitialDirectory = initialDirectory,
         };
         return dialog.ShowDialog(this) == true ? dialog.FolderName : null;

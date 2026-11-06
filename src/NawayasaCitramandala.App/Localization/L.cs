@@ -90,6 +90,7 @@ public static class L
             && !string.IsNullOrWhiteSpace(translated)) return translated;
         if (translations.TryGetValue(English, out string? englishFallback)
             && !string.IsNullOrWhiteSpace(englishFallback)) return englishFallback;
+        if (string.Equals(CurrentLanguage, English, StringComparison.OrdinalIgnoreCase)) return !string.IsNullOrWhiteSpace(englishFallback) ? englishFallback : key;
         return translations.TryGetValue(Chinese, out string? fallback)
             && !string.IsNullOrWhiteSpace(fallback) ? fallback : key;
     }

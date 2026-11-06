@@ -222,8 +222,8 @@ public partial class HomeViewModel : ObservableObject
         if (!File.Exists(entry.ProjectPath))
         {
             _shell.ShowToast(
-                L.T("无法打开工程"),
-                L.F($"工程文件已移动或删除：\n{entry.ProjectPath}"),
+                L.T("Cannot open project"),
+                L.F($"Project file moved or deleted: \n{entry.ProjectPath}"),
                 ToastKind.Warning);
             return;
         }

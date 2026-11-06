@@ -45,9 +45,9 @@ public partial class SettingsWindow : Window
     }
 
     private Task<bool> ConfirmClearCacheAsync() => ClearCacheConfirm.ShowAsync(
-        L.T("清空缓存"),
-        L.T("将删除本应用写入缓存目录的缩略图、合成图与预览图片。工程文件与导出文件不受影响。"),
-        L.T("清空缓存"));
+        L.T("Clear cache"),
+        L.T("This will delete thumbnails, composite maps, and preview images from the cache folder. Project and export files will not be affected."),
+        L.T("Clear cache"));
 
     internal void ShowCategoryForSnapshot(int index) => SelectCategory(index);
 

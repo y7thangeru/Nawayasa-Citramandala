@@ -5,11 +5,11 @@ Daftar pelacakan siklus hidup fitur (Feature Lifecycle Tracking) untuk evolusi d
 ## Progress Metrics
 - **Total Milestone**: 6
 - **Planned Features**: 28
-- **Completed**: 21
+- **Completed**: 22
 - **In Progress**: 0
 - **Postponed / Omitted**: 6
-- **Planned / Queued**: 1
-- **Overall Completion**: ~75% (Core Engine, Desktop GUI, 4-Step Wizard, and Audio CD + Visual Hybrid Engine 100% Complete)
+- **Planned / Queued**: 0
+- **Overall Completion**: ~79% (Core Engine, Desktop GUI, 4-Step Wizard, and Audio CD + Visual Hybrid Engine 100% Complete)
 
 ---
 
@@ -104,5 +104,5 @@ Daftar pelacakan siklus hidup fitur (Feature Lifecycle Tracking) untuk evolusi d
 - [x] **Hybrid Master WAV & CUE Sheet Synthesizer (`CdAudioVisualHybridGenerator`)**
   - Menyintesis seluruh lagu menjadi satu stream audio master terpadu dengan file deskriptor `.cue` (Track 01 s.d. Track N Audio), dilanjutkan trek visual artwork pada sektor sisa di lingkar luar.
   - Opsi ekspor langsung master `.wav` + `.cue` siap pakai di Step 3 Wizard.
-- [ ] **Hybrid Radial Zone Master Allocation (ISO 9660 / Joliet / UDF + Visual Artwork)**
+- [x] **Hybrid Radial Zone Master Allocation (ISO 9660 / Joliet / UDF + Visual Artwork)**
   - Penggabungan berkas data file/installer pada partisi sistem berkas di lingkar dalam (*Inner Hub*, LBA rendah) yang dapat dibaca normal oleh sistem operasi (Windows Explorer, Linux, macOS).

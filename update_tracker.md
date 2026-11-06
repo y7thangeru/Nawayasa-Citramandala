@@ -287,3 +287,40 @@ Dokumen ini mencatat setiap perubahan, penambahan, refaktor, dan perbaikan dalam
     3. Menambahkan hook aktivasi jendela foreground pada event `window.Loaded` di `AppHost.cs` (`window.Activate()`, toggle `Topmost`, dan `window.Focus()`).
   - Mengompilasi ulang seluruh solusi (0 warning, 0 error) dan mempublikasikan standalone single-file `NawayasaCitramandala.exe` (172 MB) ke direktori root.
   - Menyiapkan instruksi langsung bagi pengguna untuk mengeklik ganda file `NawayasaCitramandala.exe` dari File Explorer di layar mereka agar berjalan di Session 1 (interaktif desktop).
+
+### [2026-11-06 13:30:00 +07:00] - Pembersihan Total Bahasa Mandarin, Perbaikan Piringan Kosong di Windows Explorer, dan Kalibrasi Kontras Artwork
+- **Action Type**: `[FIX]` / `[REFACTOR]`
+- **File Paths**:
+  - `src/NawayasaCitramandala.Core/DiscPresetJsonStore.cs` `[FIX]`
+  - `src/NawayasaCitramandala.Core/ProjectJsonStore.cs` `[FIX]`
+  - `src/NawayasaCitramandala.App/Services/BluRayPresetStore.cs` `[FIX]`
+  - `src/NawayasaCitramandala.App/Services/ParameterParser.cs` `[FIX]`
+  - `src/NawayasaCitramandala.App/ViewModels/WizardViewModel.cs` `[FIX]`
+  - `src/NawayasaCitramandala.App/ViewModels/BurnViewModel.cs` `[FIX]`
+  - `src/NawayasaCitramandala.App/ViewModels/BurnProgressDisplay.cs` `[FIX]`
+  - `src/NawayasaCitramandala.App/ViewModels/ShellViewModel.cs` `[FIX]`
+  - `src/NawayasaCitramandala.App/ViewModels/ProjectDialogViewModel.cs` `[FIX]`
+  - `src/NawayasaCitramandala.App/ViewModels/ToneViewModel.cs` `[FIX]`
+  - `src/NawayasaCitramandala.App/ViewModels/DiscParametersState.cs` `[FIX]`
+  - `src/NawayasaCitramandala.App/ViewModels/HomeTiles.cs` `[FIX]`
+  - `src/NawayasaCitramandala.App/ViewModels/HomeViewModel.cs` `[FIX]`
+  - `src/NawayasaCitramandala.App/MainWindow.xaml.cs` `[FIX]`
+  - `src/NawayasaCitramandala.App/ProjectDialogWindow.xaml.cs` `[FIX]`
+  - `src/NawayasaCitramandala.App/SettingsWindow.xaml.cs` `[FIX]`
+  - `src/NawayasaCitramandala.Burning/WindowsImapiBurner.cs` `[FIX]`
+  - `C:\Users\y7tha\AppData\Local\DiscImageStudio\disc-presets.json` `[FIX]`
+  - `publish/win-x64-standalone/NawayasaCitramandala.exe` `[REFACTOR]`
+  - `NawayasaCitramandala.exe` `[REFACTOR]`
+  - `update_tracker.md` `[MODIFY]`
+- **Reasoning**:
+  - **Eradikasi 100% Karakter Mandarin**:
+    1. Mengidentifikasi kemunculan kartu bertuliskan "自定义蓝光参数" (Custom Blu-ray Parameters) di Project Dialog: diakibatkan oleh file preset lama `%LOCALAPPDATA%\DiscImageStudio\disc-presets.json` yang tersimpan sebelum lokalisasi Inggris diterapkan. Mengupdate file tersebut secara langsung, dan menambahkan metode `NormalizeEnglish()` otomatis pada `DiscPresetJsonStore.Deserialize()` sehingga file preset versi lama manapun yang dimuat akan langsung dimigrasikan ke teks bahasa Inggris.
+    2. Menghapus seluruh string error, dialog konfirmasi, status log, dan kartu template yang sebelumnya masih berbahasa Mandarin di `DiscPresetJsonStore.cs`, `ProjectJsonStore.cs`, `BluRayPresetStore.cs`, `ProjectDialogViewModel.cs` (mengubah "扇区" menjadi "sectors", "最近" menjadi "Recent", dll.), `ShellViewModel.cs`, `MainWindow.xaml.cs`, `SettingsWindow.xaml.cs`, `ToneViewModel.cs`, `DiscParametersState.cs`, dan `ParameterParser.cs`.
+    3. Memperbaiki pesan progress burn di `WindowsImapiBurner.cs` dari "正在向刻录接口传输" menjadi "Streaming payload to burner: X / Y MB...".
+  - **Penyelesaian Masalah Piringan Kosong di Windows Explorer**:
+    1. *Akar Masalah*: Pada pembakaran DVD-R sebelumnya, Wizard menyimpan file lagu di `WizardViewModel.AudioTracks`, namun tidak mensinkronisasikannya ke `_state.DvdDataDirectory` (bernilai string kosong `""`). Akibatnya, `BurnViewModel` membakar piringan dalam mode stream RAW murni (`DvdStreamingGenerator.Generate`) tanpa struktur sistem berkas (ISO 9660 / UDF Table). Windows Explorer mengenali piringan sebagai unformatted disc dengan pesan "Files Ready to Be Written to the Disc: desktop.ini".
+    2. *Solusi*: Mengimplementasikan `SyncAudioFilesToDataDirectory()` dan integrasi `EnsureProjectOpen()` di `WizardViewModel.cs`. Saat membakar DVD-R atau CD-R, folder lagu pengguna (`D:\BurnThis\SONG`) didaftarkan ke `_state.DvdDataDirectory` dan `_state.CdDataDirectory`. Hal ini memicu generator hibrida (`DvdStreamingGenerator.PrepareHybrid` / `CdDataImageGenerator.PrepareLayout`) untuk membuat struktur ISO 9660 resmi pada sektor dalam (LBA 0 dst.) yang berisi file musik, sementara gambar visual dibakar pada sektor luar piringan. Windows kini mengenali piringan dengan label `AUDIO_DISC` dan menampilkan file lagu yang dapat langsung diputar di pemutar media mana pun.
+  - **Penyelesaian Masalah Kontras Gambar Visual di Permukaan Piringan**:
+    1. *Akar Masalah*: Gambar yang diuji pengguna memiliki bagian atas gelap pekat dan bagian bawah terang. Dengan thresholding 128 biasa, gambar terbakar menjadi blok solid monokromatik tanpa gradasi, sehingga terlihat samar/tidak kontras di bawah pencahayaan normal.
+    2. *Solusi*: Mengintegrasikan hasil micro-dithering Blue Noise / Floyd-Steinberg ke pipeline rendering komposit burn (`nawayasa_dithered_artwork.png`) sehingga piringan optik menerima pola mikroskopis pit/land berfrekuensi tinggi yang membiaskan cahaya ambient (difraksi pelangi) secara kontras dan tajam.
+  - Mengompilasi ulang seluruh solusi (0 warning, 0 error) dan mempublikasikan executable standalone baru `NawayasaCitramandala.exe` (172 MB) ke direktori root.

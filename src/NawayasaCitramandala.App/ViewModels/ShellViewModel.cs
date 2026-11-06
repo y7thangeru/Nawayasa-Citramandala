@@ -141,7 +141,7 @@ public partial class ShellViewModel : ObservableObject
 
     /// <summary>Task name, e.g. "正在生成 DVD ISO…"; shown in the collapsed dock strip.</summary>
     [ObservableProperty]
-    private string _jobTitle = L.T("就绪");
+    private string _jobTitle = L.T("Ready");
 
     /// <summary>True once the dock's run log holds anything. The log affordances follow it, so
     /// a fresh project shows a status strip instead of buttons that cannot do anything.</summary>
@@ -151,7 +151,7 @@ public partial class ShellViewModel : ObservableObject
     private bool _hasLogContent;
 
     [ObservableProperty]
-    private string _jobStatusText = L.T("尚未运行任务。");
+    private string _jobStatusText = L.T("No tasks running.");
 
     [ObservableProperty]
     private double _jobProgressValue;
@@ -285,7 +285,7 @@ public partial class ShellViewModel : ObservableObject
             return;
         }
 
-        JobStatusText = L.T("正在取消…");
+        JobStatusText = L.T("Cancelling...");
         cancellation.Cancel();
     }
 
@@ -346,10 +346,10 @@ public partial class ShellViewModel : ObservableObject
     /// <summary>Save / discard / cancel, PR-style. True saves, false discards, null cancels.</summary>
     public Task<bool?> ConfirmUnsavedChangesAsync(string context)
         => SaveConfirmationHandler?.Invoke(
-            L.T("有未保存的更改"),
-            L.F($"{context}之前要保存对「{CurrentProject?.Name}」的更改吗？"),
-            L.T("保存"),
-            L.T("不保存"))
+            L.T("Unsaved changes"),
+            L.F($"{context}Do you want to save changes to \"{CurrentProject?.Name}\" before {context}?"),
+            L.T("Save"),
+            L.T("Do not save"))
         ?? Task.FromResult<bool?>(false);
 
     public void MarkWindowLoaded()
@@ -357,7 +357,7 @@ public partial class ShellViewModel : ObservableObject
         _isWindowLoaded = true;
         if (_presetLoadWarning is not null)
         {
-            ShowToast(L.T("预设加载失败"), _presetLoadWarning, ToastKind.Warning);
+            ShowToast(L.T("Failed to load presets"), _presetLoadWarning, ToastKind.Warning);
         }
 
         LivePreview.OnWindowLoaded();
@@ -371,8 +371,8 @@ public partial class ShellViewModel : ObservableObject
     {
         if (!IsJobRunning && !HasLogContent)
         {
-            JobTitle = L.T("就绪");
-            JobStatusText = L.T("尚未运行任务。");
+            JobTitle = L.T("Ready");
+            JobStatusText = L.T("No tasks running.");
         }
 
         // Refresh the independent selection before State publishes its localized catalog;
@@ -392,7 +392,7 @@ public partial class ShellViewModel : ObservableObject
     /// to the same unsaved-changes family as opening another project or closing the window.</summary>
     private async Task BackHomeAsync()
     {
-        if (!await EnsureNoUnsavedChangesAsync(L.T("返回主页")))
+        if (!await EnsureNoUnsavedChangesAsync(L.T("Return Home")))
         {
             return;
         }
@@ -434,11 +434,11 @@ public partial class ShellViewModel : ObservableObject
     {
         if (_isBusy)
         {
-            ShowToast(L.T("操作未执行"), L.T("已有任务正在运行。"), ToastKind.Info);
+            ShowToast(L.T("Operation Not Executed"), L.T("Another task is already running."), ToastKind.Info);
             return;
         }
 
-        if (!await EnsureNoUnsavedChangesAsync(L.T("新建工程")))
+        if (!await EnsureNoUnsavedChangesAsync(L.T("New Project")))
         {
             return;
         }
@@ -491,13 +491,13 @@ public partial class ShellViewModel : ObservableObject
         }
         catch (Exception exception)
         {
-            ShowToast(L.T("无法创建工程"), exception.Message, ToastKind.Error);
+            ShowToast(L.T("Cannot create project"), exception.Message, ToastKind.Error);
             return;
         }
 
         CloseCurrentProject();
         OpenDocument(result.SavePath, document);
-        ShowToast(L.T("工程已创建"), result.Name, ToastKind.Success);
+        ShowToast(L.T("Project created"), result.Name, ToastKind.Success);
     }
 
     /// <summary>Creates and opens a project in-memory without displaying any dialog or leaving the current workspace.</summary>
@@ -603,11 +603,11 @@ public partial class ShellViewModel : ObservableObject
     {
         if (_isBusy)
         {
-            ShowToast(L.T("操作未执行"), L.T("已有任务正在运行。"), ToastKind.Info);
+            ShowToast(L.T("Operation Not Executed"), L.T("Another task is already running."), ToastKind.Info);
             return;
         }
 
-        string? picked = Dialogs?.PickOpen(L.T("打开工程"), L.T(ProjectJsonStore.FileFilter));
+        string? picked = Dialogs?.PickOpen(L.T("Open Project"), L.T(ProjectJsonStore.FileFilter));
         if (picked is null)
         {
             return;
@@ -620,7 +620,7 @@ public partial class ShellViewModel : ObservableObject
     /// funnels through here, so the unsaved-changes check has exactly one home.</summary>
     internal async Task OpenProjectFromAsync(string path)
     {
-        if (!await EnsureNoUnsavedChangesAsync(L.T("打开其他工程")))
+        if (!await EnsureNoUnsavedChangesAsync(L.T("Open another project")))
         {
             return;
         }
@@ -632,7 +632,7 @@ public partial class ShellViewModel : ObservableObject
         }
         catch (Exception exception)
         {
-            ShowToast(L.T("无法打开工程"), L.F($"{exception.Message}\n\n文件位置：\n{path}"), ToastKind.Error);
+            ShowToast(L.T("Cannot open project"), L.F($"{exception.Message}\n\nFile location: \n{path}"), ToastKind.Error);
             return;
         }
 
@@ -751,7 +751,7 @@ public partial class ShellViewModel : ObservableObject
         }
         catch (Exception exception)
         {
-            ShowToast(L.T("无法保存工程"), exception.Message, ToastKind.Error);
+            ShowToast(L.T("Cannot save project"), exception.Message, ToastKind.Error);
         }
     }
 
@@ -777,7 +777,7 @@ public partial class ShellViewModel : ObservableObject
         }
         catch (Exception exception)
         {
-            ShowToast(L.T("无法保存工程"), exception.Message, ToastKind.Error);
+            ShowToast(L.T("Cannot save project"), exception.Message, ToastKind.Error);
         }
     }
 
@@ -997,7 +997,7 @@ public partial class ShellViewModel : ObservableObject
             return;
         }
 
-        bool? decision = await ConfirmUnsavedChangesAsync(L.T("关闭"));
+        bool? decision = await ConfirmUnsavedChangesAsync(L.T("Close"));
         if (decision is null)
         {
             args.Cancel = true;
@@ -1025,7 +1025,7 @@ public partial class ShellViewModel : ObservableObject
         OpenOutputCommand.NotifyCanExecuteChanged();
         JobHasResult = true;
         CanPreviewLastOutput = IsDiscArtifact(_lastOutputPath);
-        JobStatusText = L.T("完成：") + Path.GetFileName(_lastOutputPath);
+        JobStatusText = L.T("Complete: ") + Path.GetFileName(_lastOutputPath);
     }
 
     public void ClearLog()
@@ -1055,7 +1055,7 @@ public partial class ShellViewModel : ObservableObject
     }
 
     public void ShowValidationError(Exception exception)
-        => ShowToast(L.T("请检查输入"), exception.Message, ToastKind.Warning);
+        => ShowToast(L.T("Please check input"), exception.Message, ToastKind.Warning);
 
     private void OpenOutput()
     {
@@ -1086,7 +1086,7 @@ public partial class ShellViewModel : ObservableObject
     /// <summary>Browse for the generated CD track used by the live read-back preview.</summary>
     internal bool BrowseCdTrack()
     {
-        string? picked = Dialogs?.PickOpen(L.T("选择生成的 CD 音轨或数据盘"), L.T("CD 音轨或镜像|*.wav;*.raw;*.iso|WAV 音轨|*.wav|RAW 音轨|*.raw|ISO 数据盘|*.iso|所有文件|*.*"));
+        string? picked = Dialogs?.PickOpen(L.T("Select generated CD audio track or data disc"), L.T("CD Audio or Image|*.wav;*.raw;*.iso|WAV Track|*.wav|RAW Track|*.raw|ISO Disc|*.iso|All Files|*.*"));
         if (picked is null)
         {
             return false;
@@ -1099,7 +1099,7 @@ public partial class ShellViewModel : ObservableObject
     /// <summary>Browse for the generated DVD ISO used by the live read-back preview.</summary>
     internal bool BrowseDvdIso()
     {
-        string? picked = Dialogs?.PickOpen(L.T("选择生成的 DVD ISO"), L.T("ISO 镜像|*.iso|所有文件|*.*"));
+        string? picked = Dialogs?.PickOpen(L.T("Select generated DVD ISO"), L.T("ISO Image|*.iso|All Files|*.*"));
         if (picked is null)
         {
             return false;
@@ -1112,7 +1112,7 @@ public partial class ShellViewModel : ObservableObject
     /// <summary>Browse for the generated BD ISO used by the live read-back preview.</summary>
     internal bool BrowseBluRayIso()
     {
-        string? picked = Dialogs?.PickOpen(L.T("选择生成的蓝光 ISO"), L.T("ISO 镜像|*.iso|所有文件|*.*"));
+        string? picked = Dialogs?.PickOpen(L.T("Select generated Blu-ray ISO"), L.T("ISO Image|*.iso|All Files|*.*"));
         if (picked is null)
         {
             return false;
@@ -1142,7 +1142,7 @@ public partial class ShellViewModel : ObservableObject
     {
         if (_isBusy)
         {
-            ShowToast(L.T("操作未执行"), L.T("已有任务正在运行。"), ToastKind.Info);
+            ShowToast(L.T("Operation Not Executed"), L.T("Another task is already running."), ToastKind.Info);
             return;
         }
 
@@ -1150,7 +1150,7 @@ public partial class ShellViewModel : ObservableObject
         _burnProgressDisplay = null;
         _burnTelemetryTimer?.Stop();
         JobTitle = status;
-        JobStatusText = L.T("正在运行…");
+        JobStatusText = L.T("Running...");
         JobProgressValue = 0;
         IsJobProgressIndeterminate = true;
         JobHasResult = false;
@@ -1183,7 +1183,7 @@ public partial class ShellViewModel : ObservableObject
         }
         catch (Exception exception)
         {
-            AppendLog(L.F($"[{DateTime.Now:HH:mm:ss}] 任务异常：{exception.Message}\n"));
+            AppendLog(L.F($"[{DateTime.Now:HH:mm:ss}] Task error: {exception.Message}\n"));
         }
         finally
         {
@@ -1197,9 +1197,9 @@ public partial class ShellViewModel : ObservableObject
         {
             IsJobProgressIndeterminate = false;
             JobProgressValue = 0;
-            JobStatusText = L.T("已取消");
-            AppendLog(L.F($"[{DateTime.Now:HH:mm:ss}] 任务已取消\n"));
-            ShowToast(L.T("任务已取消"), L.T("未完成的输出文件可能留在磁盘上。"), ToastKind.Info);
+            JobStatusText = L.T("Cancelled");
+            AppendLog(L.F($"[{DateTime.Now:HH:mm:ss}] Task cancelled\n"));
+            ShowToast(L.T("Task cancelled"), L.T("Incomplete output files may remain on disc."), ToastKind.Info);
         }
         else if (exitCode == 0)
         {
@@ -1208,16 +1208,16 @@ public partial class ShellViewModel : ObservableObject
             JobProgressValue = 100;
             JobHasResult = true;
             CanPreviewLastOutput = IsDiscArtifact(_lastOutputPath);
-            JobStatusText = L.T("完成：") + Path.GetFileName(_lastOutputPath);
+            JobStatusText = L.T("Complete: ") + Path.GetFileName(_lastOutputPath);
             AppendLog(L.F($"[{DateTime.Now:HH:mm:ss}] 完成：{_lastOutputPath}\n"));
         }
         else
         {
-            JobStatusText = L.F($"失败：退出码 {exitCode}");
+            JobStatusText = L.F($"Failed: Exit code {exitCode}");
             IsJobDockExpanded = true;
             AppendLog(
-                L.F($"[{DateTime.Now:HH:mm:ss}] 任务失败：退出码 {exitCode}，未生成 {Path.GetFullPath(outputPath)}\n"));
-            ShowToast(L.T("任务未完成"), L.T("详情见窗口底部的任务日志。"), ToastKind.Warning);
+                L.F($"[{DateTime.Now:HH:mm:ss}] 任务Failed: Exit code {exitCode}, did not generate {Path.GetFullPath(outputPath)}\n"));
+            ShowToast(L.T("Task Incomplete"), L.T("See task log at bottom of window for details."), ToastKind.Warning);
         }
     }
 
@@ -1232,7 +1232,7 @@ public partial class ShellViewModel : ObservableObject
         _burnProgressDisplay = null;
         _burnTelemetryTimer?.Stop();
         JobTitle = title;
-        JobStatusText = L.T("正在运行…");
+        JobStatusText = L.T("Running...");
         JobProgressValue = 0;
         IsJobProgressIndeterminate = !determinate;
         JobHasResult = false;
@@ -1240,7 +1240,7 @@ public partial class ShellViewModel : ObservableObject
 
     internal void BeginBurnDockJob(OpticalBurnMediaKind mediaKind, long totalBytes)
     {
-        BeginDockJob(L.T("流式刻录"), determinate: true);
+        BeginDockJob(L.T("Stream Burn"), determinate: true);
         _burnProgressDisplay = new BurnProgressDisplay(mediaKind, totalBytes);
         IsBurnTelemetryVisible = true;
         UpdateBurnTelemetry();
@@ -1285,7 +1285,7 @@ public partial class ShellViewModel : ObservableObject
         {
             burn.Apply(new OpticalBurnProgress("complete", status, burn.TotalBytes, burn.TotalBytes));
             UpdateBurnTelemetry();
-            JobTitle = L.T("刻录完成");
+            JobTitle = L.T("Burn Complete");
         }
         JobStatusText = status;
         JobProgressValue = 100;

@@ -440,7 +440,9 @@ public partial class WizardViewModel : ObservableObject
     {
         if (!_shell.IsProjectOpen || _shell.CurrentProject?.Family != SelectedFormat)
         {
-            string projName = Path.GetFileNameWithoutExtension(ImagePath ?? "MyDisc");
+            string projName = string.IsNullOrWhiteSpace(ProjectSaveName) 
+                ? (Path.GetFileNameWithoutExtension(ImagePath ?? "MyDiscDesign")) 
+                : ProjectSaveName;
             _shell.CreateAndOpenProjectHeadless(SelectedFormat, projName);
             ProjectSaveName = projName;
         }
@@ -494,11 +496,7 @@ public partial class WizardViewModel : ObservableObject
 
     partial void OnSelectedFormatChanged(OpticalDiscFamily value)
     {
-        if (_shell.IsProjectOpen)
-        {
-            string projName = ProjectSaveName;
-            _shell.CreateAndOpenProjectHeadless(value, projName);
-        }
+        EnsureProjectOpen();
         RecalculateCapacity();
         SyncImageToDesignLayer();
         UpdateDitherPreview();
@@ -583,8 +581,49 @@ public partial class WizardViewModel : ObservableObject
 
         if (step == WizardStep.FinalizeBurn)
         {
+            EnsureProjectOpen();
+            SyncAudioFilesToDataDirectory();
+            SyncImageToDesignLayer();
             _burn.RefreshDevicesCommand.Execute(null);
             _burn.UpdateSourceSummary();
+        }
+    }
+
+    private void SyncAudioFilesToDataDirectory()
+    {
+        if (AudioTracks.Count > 0)
+        {
+            string? targetDir = null;
+            string firstDir = Path.GetDirectoryName(AudioTracks[0].FilePath) ?? string.Empty;
+            bool allSame = AudioTracks.All(t => string.Equals(Path.GetDirectoryName(t.FilePath), firstDir, StringComparison.OrdinalIgnoreCase));
+            if (allSame && !string.IsNullOrWhiteSpace(firstDir) && Directory.Exists(firstDir))
+            {
+                targetDir = firstDir;
+            }
+            else
+            {
+                string stageDir = Path.Combine(Path.GetTempPath(), "Nawayasa_BurnStage_" + Guid.NewGuid().ToString("N")[..8]);
+                Directory.CreateDirectory(stageDir);
+                foreach (var track in AudioTracks)
+                {
+                    string dest = Path.Combine(stageDir, Path.GetFileName(track.FilePath));
+                    if (!File.Exists(dest) && File.Exists(track.FilePath))
+                    {
+                        File.Copy(track.FilePath, dest, true);
+                    }
+                }
+                targetDir = stageDir;
+            }
+
+            _state.DvdDataDirectory = targetDir;
+            _state.CdDataDirectory = targetDir;
+            _state.BdDataDirectory = targetDir;
+            _state.DvdVolumeLabel = string.IsNullOrWhiteSpace(ProjectSaveName) ? "AUDIO_DISC" : ProjectSaveName.Replace(" ", "_").ToUpperInvariant();
+            _state.CdVolumeLabel = _state.DvdVolumeLabel;
+            _state.BdVolumeLabel = _state.DvdVolumeLabel;
+            _state.DvdFilesAtOuterRing = false; // Songs at inner hub, visual artwork on remaining outer ring
+            _state.CdFilesAtOuterRing = false;
+            _state.BdFilesAtOuterRing = false;
         }
     }
 
@@ -592,9 +631,14 @@ public partial class WizardViewModel : ObservableObject
     {
         if (IsAudioCapacityExceeded)
         {
-            _shell.ShowToast("Capacity Exceeded", "Audio tracks exceed CD-R capacity (80 min). Remove some tracks before burning.", ToastKind.Error);
+            _shell.ShowToast("Capacity Exceeded", "Audio tracks exceed disc capacity. Remove some tracks before burning.", ToastKind.Error);
             return;
         }
+
+        EnsureProjectOpen();
+        SyncAudioFilesToDataDirectory();
+        SyncImageToDesignLayer();
+        _burn.UpdateSourceSummary();
 
         if (_burn.StartBurnCommand.CanExecute(null))
         {
